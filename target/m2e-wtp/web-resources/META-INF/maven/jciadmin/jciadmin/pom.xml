@@ -302,7 +302,7 @@
 		</dependency>
 
 
-		<dependency>
+		<!--<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>kernel</artifactId>
 			<version>7.0.2</version>
@@ -355,7 +355,7 @@
 			<artifactId>hyph</artifactId>
 			<version>7.0.2</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.itextpdf/html2pdf -->
+		 https://mvnrepository.com/artifact/com.itextpdf/html2pdf 
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>html2pdf</artifactId>
@@ -363,13 +363,13 @@
 		</dependency>
 
 
-		<!--
-		https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
+		
+		https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 			<version>3.1.2</version>
-		</dependency>
+		</dependency>-->
 
 
 		<dependency>
