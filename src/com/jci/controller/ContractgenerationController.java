@@ -123,34 +123,34 @@ public class ContractgenerationController {
                   
                   SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd"); 
                   
-                  if(!grade1.isEmpty())
-                        contractgenerationPsco.setGrade1_TD1(Double.parseDouble(grade1));
-                  if(!grade2.isEmpty())
-                        contractgenerationPsco.setGrade2_TD2_W1(Double.parseDouble(grade2));
-                  if(!grade3.isEmpty())
-                         contractgenerationPsco.setGrade3_TD3_W2_M1_B1(Double.parseDouble(grade3));
-                  if(!grade4.isEmpty())
-                         contractgenerationPsco.setGrade4_TD4_W3_M2_B2(Double.parseDouble(grade4));
-                  if(!grade5.isEmpty())
-                         contractgenerationPsco.setGrade5_TD5_W4_M3_B3(Double.parseDouble(grade5));
-                  if(!grade6.isEmpty())
-                         contractgenerationPsco.setGrade6_TD6_W5_M4_B4(Double.parseDouble(grade6));
-                  if(!grade7.isEmpty())
-                         contractgenerationPsco.setGrade7_TD7_W6_M5_B5(Double.parseDouble(grade7));
-                  if(!grade8.isEmpty())
-                         contractgenerationPsco.setGrade8_TD8_W7_M6_B6(Double.parseDouble(grade8));
-                  if(!grade9.isEmpty())
-                        contractgenerationPsco.setGrade8_W8(Double.parseDouble(grade9));
+//                  if(!grade1.isEmpty())
+//                        contractgenerationPsco.setGrade1_TD1(Double.parseDouble(grade1));
+//                  if(!grade2.isEmpty())
+//                        contractgenerationPsco.setGrade2_TD2_W1(Double.parseDouble(grade2));
+//                  if(!grade3.isEmpty())
+//                         contractgenerationPsco.setGrade3_TD3_W2_M1_B1(Double.parseDouble(grade3));
+//                  if(!grade4.isEmpty())
+//                         contractgenerationPsco.setGrade4_TD4_W3_M2_B2(Double.parseDouble(grade4));
+//                  if(!grade5.isEmpty())
+//                         contractgenerationPsco.setGrade5_TD5_W4_M3_B3(Double.parseDouble(grade5));
+//                  if(!grade6.isEmpty())
+//                         contractgenerationPsco.setGrade6_TD6_W5_M4_B4(Double.parseDouble(grade6));
+//                  if(!grade7.isEmpty())
+//                         contractgenerationPsco.setGrade7_TD7_W6_M5_B5(Double.parseDouble(grade7));
+//                  if(!grade8.isEmpty())
+//                         contractgenerationPsco.setGrade8_TD8_W7_M6_B6(Double.parseDouble(grade8));
+//                  if(!grade9.isEmpty())
+//                        contractgenerationPsco.setGrade8_W8(Double.parseDouble(grade9));
                   
                Date currentdate = new Date();
          String formattedDate = df.format(currentdate);
-         contractgenerationPsco.setCreated_date(formattedDate);
-         contractgenerationPsco.setPcso_Date(date);
-         contractgenerationPsco.setContract_date(contractdate);
-         contractgenerationPsco.setCrop_year(cropyear);
-         contractgenerationPsco.setContract_Qty(contractQuants);
-         contractgenerationPsco.setContactnumber(contactnumber);
-         this.contractgenerationService.create(contractgenerationPsco);
+//         contractgenerationPsco.setCreated_date(formattedDate);
+//         contractgenerationPsco.setPcso_Date(date);
+//         contractgenerationPsco.setContract_date(contractdate);
+//         contractgenerationPsco.setCrop_year(cropyear);
+//         contractgenerationPsco.setContract_Qty(contractQuants);
+//         contractgenerationPsco.setContactnumber(contactnumber);
+//         this.contractgenerationService.create(contractgenerationPsco);
          
                   redirectAttributes.addFlashAttribute("msg",
                                "<div class=\"alert alert-success\"><b>Success !</b> Record saved successfully.</div>\r\n" + "");

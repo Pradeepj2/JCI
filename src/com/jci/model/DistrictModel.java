@@ -8,35 +8,71 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tbl_districts", schema = "dbo")
+@Table(name = "tbl_districts_new", schema = "dbo")
 public class DistrictModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private int id;
-	@Column(name = "district_name")
-	private String district_name ;
+	@Column(name = "dist_name")
+	private String dist_name ;
+	
+	@Column(name = "new_dist_code")
+	private String new_dist_code ;
+	
+	@Column(name = "area_code")
+	private String area_code ;
 
-	@Column(name = "state_id")
-	private int state_id;
+	@Column(name = "state_code")
+	private int state_code;
 
-
-
-	public String getDistrict_name() {
-		return district_name;
+	public int getId() {
+		return id;
 	}
 
-	public void setDistrict_name(String district_name) {
-		this.district_name = district_name;
+	public void setId(int id) {
+		this.id = id;
 	}
 
-	public int getState_id() {
-		return state_id;
+	public String getDist_name() {
+		return dist_name;
 	}
 
-	public void setState_id(int state_id) {
-		this.state_id = state_id;
+	public void setDist_name(String dist_name) {
+		this.dist_name = dist_name;
 	}
+
+	public String getNew_dist_code() {
+		return new_dist_code;
+	}
+
+	public void setNew_dist_code(String new_dist_code) {
+		this.new_dist_code = new_dist_code;
+	}
+
+	public String getArea_code() {
+		return area_code;
+	}
+
+	public void setArea_code(String area_code) {
+		this.area_code = area_code;
+	}
+
+	public int getState_code() {
+		return state_code;
+	}
+
+	public void setState_code(int state_code) {
+		this.state_code = state_code;
+	}
+
+	@Override
+	public String toString() {
+		return "DistrictModel [id=" + id + ", dist_name=" + dist_name + ", new_dist_code=" + new_dist_code
+				+ ", area_code=" + area_code + ", state_code=" + state_code + "]";
+	}
+
+
 
 
 

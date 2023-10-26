@@ -358,7 +358,7 @@ public class InsertDataController_2 {
 	@RequestMapping("HOdispatch")
 	public ModelAndView HODispatchInstructionModel(HttpServletRequest request)
 	{	String username =(String)request.getSession().getAttribute("usrname");
-		ModelAndView mv = new ModelAndView("HOdispatchinstruction");
+		ModelAndView mv = new ModelAndView("HoDispatchInstruction");
 		if(username == null) {
 	     	mv = new ModelAndView("index");
 	         }

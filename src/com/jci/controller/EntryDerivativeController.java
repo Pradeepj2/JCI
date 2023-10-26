@@ -26,26 +26,27 @@ import com.jci.service.StateService;
 @Controller
 public class EntryDerivativeController {
 
-	@Autowired
-	private EntryDeryvativePriceService entryDerivativePriceService;
-
-	@Autowired
-	StateService stateList;
-	
-
-	private static Logger logger = LogManager.getLogger(EntryDerivativeController.class);
-
-	@RequestMapping("entry_derivativeprice")
-	public ModelAndView ViewEDPrice(HttpServletRequest request) {
-		String username =(String)request.getSession().getAttribute("usrname");
-		List<StateList> Liststate = stateList.getAll();
-		ModelAndView mv = new ModelAndView("entry_derivativeprice");
-		mv.addObject("Liststate", Liststate);
-		 if(username == null) {
-         	mv = new ModelAndView("index");
-             }
-		return mv;
-	}
+//	@Autowired
+//	private EntryDeryvativePriceService entryDerivativePriceService;
+//
+//	@Autowired
+//	StateService stateList;
+//	
+//
+//	private static Logger logger = LogManager.getLogger(EntryDerivativeController.class);
+//
+//	@RequestMapping("entry_derivativeprice")
+//	public ModelAndView ViewEDPrice(HttpServletRequest request) {
+//		String username =(String)request.getSession().getAttribute("usrname");
+//		List<StateList> Liststate = stateList.getAll();
+//		ModelAndView mv = new ModelAndView("entry_derivativeprice");
+//		mv.addObject("Liststate", Liststate);
+//		 if(username == null) {
+//         	mv = new ModelAndView("index");
+//             }
+//		return mv;
+//	}
+}
 
 	/*
 	 * @RequestMapping("saveEDPrice") public ModelAndView saveEDC(HttpServletRequest
@@ -164,91 +165,96 @@ public class EntryDerivativeController {
 	 * + ""); } catch (Exception e) { System.out.println(e); } return null;//new
 	 * ModelAndView(new RedirectView("entry_derivativeprice.obj")); }
 	 */
-
-	@RequestMapping("editentryderivativeprice")
-	public ModelAndView editEDP(HttpServletRequest request) {
-		String username =(String)request.getSession().getAttribute("usrname");
-		ModelAndView mv = new ModelAndView("editentryderivativeprice");
-		int der_id = Integer.parseInt(request.getParameter("der_id"));
-		EntryDerivativePrice entryDerivativePrice = this.entryDerivativePriceService.findEDPBYId(der_id);
-		mv.addObject("derivativePrice", entryDerivativePrice);
-		List<StateList> liststate = stateList.getAll();
-		mv.addObject("Liststate", liststate);
-		 if(username == null) {
-	         	mv = new ModelAndView("index");
-	             }
-		return mv;
-	}
-
-	@RequestMapping("updateEDPrice")
-	public ModelAndView updateEDC(HttpServletRequest request, RedirectAttributes redirectAttributes) {
-		String username =(String)request.getSession().getAttribute("usrname");
-		try {
-			int der_id = Integer.parseInt(request.getParameter("der_id"));
-		//	System.out.println("===id model==>>>>>>>>>>>=== " + der_id);
-			EntryDerivativePrice entryDerivativePrice = this.entryDerivativePriceService.findEDPBYId(der_id);
-			String crop_year = request.getParameter("crop_year");
-			String state = request.getParameter("state");
-			String district = request.getParameter("district");
-			String delivery_type = request.getParameter("delivery_type");
-			String grade1 = request.getParameter("grade1");
-			String grade2 = request.getParameter("grade2");
-			String grade3 = request.getParameter("grade3");
-			String grade4 = request.getParameter("grade4");
-			String grade5 = request.getParameter("grade5");
-			String grade6 = request.getParameter("grade6");
-			
-			entryDerivativePrice.setDer_id(der_id);
-			entryDerivativePrice.setCrop_year(crop_year);
-			entryDerivativePrice.setDelivery_type(delivery_type);
-			entryDerivativePrice.setState(state);
-			entryDerivativePrice.setDistrict(district);
-			entryDerivativePrice.setCrop_year(crop_year);
-		
-			entryDerivativePrice.setGrade1(grade1);
-			entryDerivativePrice.setGrade2(grade2);
-			entryDerivativePrice.setGrade3(grade3);
-			entryDerivativePrice.setGrade4(grade4);
-			entryDerivativePrice.setGrade5(grade5);
-			entryDerivativePrice.setGrade6(grade6);
-			this.entryDerivativePriceService.update(entryDerivativePrice);
-			redirectAttributes.addFlashAttribute("msg",
-					"<div class=\"alert alert-success\"><b>Success !</b> Record saved successfully.</div>\r\n" + "");
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		 if(username == null) {
-	         	return new ModelAndView("index");
-	             }
-		return new ModelAndView(new RedirectView("entryderivativepricelist.jsp.obj"));
-	}
-
-	@RequestMapping("entryderivativepricelist")
-	public ModelAndView EntryDerivativePrice(HttpServletRequest request) {
-		String username =(String)request.getSession().getAttribute("usrname");
-		List<EntryDerivativePrice> edp = entryDerivativePriceService.getAllEDP();
-		ModelAndView mv = new ModelAndView("entryderivativepricelist");
-		mv.addObject("edp", edp);
-		 if(username == null) {
-	         	mv = new ModelAndView("index");
-	             }
-		return mv;
-	}
-
-	@RequestMapping("entryderivativepriceDelete")
-	public ModelAndView entryderivativepriceDelete(HttpServletRequest request, RedirectAttributes redirectAttributes)
-			throws ParseException {
-		String username =(String)request.getSession().getAttribute("usrname");
-		ModelAndView mv = new ModelAndView("entryderivativepricelist");
-		int id = Integer.parseInt(request.getParameter("der_id"));
-		entryDerivativePriceService.delete(id);
-		redirectAttributes.addFlashAttribute("msg",
-				"<div class=\"alert alert-success\"><b>Success !</b> List deleted successfully.</div>\r\n" + "");
-		 if(username == null) {
-	         	return new ModelAndView("index");
-	             }
-		return new ModelAndView(new RedirectView("entryderivativepricelist.obj"));
-
-	}
-
-}
+	
+	
+	//comment for resolve conflict
+	
+	
+//
+//	@RequestMapping("editentryderivativeprice")
+//	public ModelAndView editEDP(HttpServletRequest request) {
+//		String username =(String)request.getSession().getAttribute("usrname");
+//		ModelAndView mv = new ModelAndView("editentryderivativeprice");
+//		int der_id = Integer.parseInt(request.getParameter("der_id"));
+//		EntryDerivativePrice entryDerivativePrice = this.entryDerivativePriceService.findEDPBYId(der_id);
+//		mv.addObject("derivativePrice", entryDerivativePrice);
+//		List<StateList> liststate = stateList.getAll();
+//		mv.addObject("Liststate", liststate);
+//		 if(username == null) {
+//	         	mv = new ModelAndView("index");
+//	             }
+//		return mv;
+//	}
+//
+//	@RequestMapping("updateEDPrice")
+//	public ModelAndView updateEDC(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+//		String username =(String)request.getSession().getAttribute("usrname");
+//		try {
+//			int der_id = Integer.parseInt(request.getParameter("der_id"));
+//		//	System.out.println("===id model==>>>>>>>>>>>=== " + der_id);
+//			EntryDerivativePrice entryDerivativePrice = this.entryDerivativePriceService.findEDPBYId(der_id);
+//			String crop_year = request.getParameter("crop_year");
+//			String state = request.getParameter("state");
+//			String district = request.getParameter("district");
+//			String delivery_type = request.getParameter("delivery_type");
+//			String grade1 = request.getParameter("grade1");
+//			String grade2 = request.getParameter("grade2");
+//			String grade3 = request.getParameter("grade3");
+//			String grade4 = request.getParameter("grade4");
+//			String grade5 = request.getParameter("grade5");
+//			String grade6 = request.getParameter("grade6");
+//			
+//			entryDerivativePrice.setDer_id(der_id);
+//			entryDerivativePrice.setCrop_year(crop_year);
+//			entryDerivativePrice.setDelivery_type(delivery_type);
+//			entryDerivativePrice.setState(state);
+//			entryDerivativePrice.setDistrict(district);
+//			entryDerivativePrice.setCrop_year(crop_year);
+//		
+//			entryDerivativePrice.setGrade1(grade1);
+//			entryDerivativePrice.setGrade2(grade2);
+//			entryDerivativePrice.setGrade3(grade3);
+//			entryDerivativePrice.setGrade4(grade4);
+//			entryDerivativePrice.setGrade5(grade5);
+//			entryDerivativePrice.setGrade6(grade6);
+//			this.entryDerivativePriceService.update(entryDerivativePrice);
+//			redirectAttributes.addFlashAttribute("msg",
+//					"<div class=\"alert alert-success\"><b>Success !</b> Record saved successfully.</div>\r\n" + "");
+//		} catch (Exception e) {
+//			System.out.println(e);
+//		}
+//		 if(username == null) {
+//	         	return new ModelAndView("index");
+//	             }
+//		return new ModelAndView(new RedirectView("entryderivativepricelist.jsp.obj"));
+//	}
+//
+//	@RequestMapping("entryderivativepricelist")
+//	public ModelAndView EntryDerivativePrice(HttpServletRequest request) {
+//		String username =(String)request.getSession().getAttribute("usrname");
+//		List<EntryDerivativePrice> edp = entryDerivativePriceService.getAllEDP();
+//		ModelAndView mv = new ModelAndView("entryderivativepricelist");
+//		mv.addObject("edp", edp);
+//		 if(username == null) {
+//	         	mv = new ModelAndView("index");
+//	             }
+//		return mv;
+//	}
+//
+//	@RequestMapping("entryderivativepriceDelete")
+//	public ModelAndView entryderivativepriceDelete(HttpServletRequest request, RedirectAttributes redirectAttributes)
+//			throws ParseException {
+//		String username =(String)request.getSession().getAttribute("usrname");
+//		ModelAndView mv = new ModelAndView("entryderivativepricelist");
+//		int id = Integer.parseInt(request.getParameter("der_id"));
+//		entryDerivativePriceService.delete(id);
+//		redirectAttributes.addFlashAttribute("msg",
+//				"<div class=\"alert alert-success\"><b>Success !</b> List deleted successfully.</div>\r\n" + "");
+//		 if(username == null) {
+//	         	return new ModelAndView("index");
+//	             }
+//		return new ModelAndView(new RedirectView("entryderivativepricelist.obj"));
+//
+//	}
+//
+//}
