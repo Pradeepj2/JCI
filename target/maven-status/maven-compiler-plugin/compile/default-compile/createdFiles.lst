@@ -119,7 +119,6 @@ com\jci\dao\impl\ProgOfAssortmentDaoImpl.class
 com\jci\model\RulingMarket.class
 com\jci\service\Impl\UserActionServiceImpl.class
 com\jci\model\MarketArrivalModel.class
-com\jci\controller\PdfGenerator.class
 com\jci\dao\EntryDerivativePriceDao.class
 com\jci\dao\impl\EntryDerivativePriceDaoImpl.class
 com\jci\dao\impl\MarketArrivalDaoImpl.class
