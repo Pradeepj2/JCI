@@ -156,7 +156,7 @@
 										<div class="col-sm-4 form-group">
 											<label class="required">Contract Value</label> <input
 												class="form-control" name="contractValue" id="contractValue"
-												type="number" readonly">
+												type="number" readonly>
 										</div>
 										<input class="form-control" type="hidden" name="count"
 											id="count">

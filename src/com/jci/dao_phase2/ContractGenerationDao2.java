@@ -8,8 +8,11 @@ import com.jci.model.Contractgeneration;
 
 public interface ContractGenerationDao2 {
 	void create(Contractgeneration contract);
+	 List<Contractgeneration> getAllContract();
 	int highestDerivativePrice(String cropYear, String deliveryType);
 	boolean isValidContractIdn(String contractIdn);
 	ModelAndView pcso_details(List<String> pcsoDates,String gradeComp , String deliveryType);
+	List<Object[]> getListOfGradesPrice(String deliveryType, String cropYear);
+	List<Object[]> getListOfGradeComposition(String gradeComp);
 
 }

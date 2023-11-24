@@ -33,6 +33,26 @@ public class ContractGenerationDaoImpl2 implements ContractGenerationDao2 {
 	List<Double> gc = new ArrayList<>();
 
 	@Override
+	public List<Object[]> getListOfGradesPrice(String deliveryType, String cropYear) {
+		String sqlQueryToGetHighestPrice = "select top 1 grade1, grade2, grade3, grade4, grade5, grade6 from jcientry_derivative_price where grade1 + grade2 + grade3 + grade4 + grade5 + grade6 = (select Max(grade1+grade2+grade3+grade4+grade5+grade6) as SumGrades from jcientry_derivative_price where state_name='Assam' and crop_year='"
+				+ cropYear + "'and delivery_type='" + deliveryType + "')";
+
+		List<Object[]> listOfGrades = currentSession().createSQLQuery(sqlQueryToGetHighestPrice).list();
+		return listOfGrades;
+
+	}
+	
+	@Override
+	public List<Object[]> getListOfGradeComposition(String gradeComp) {
+
+		String sqlforGrades = "select Jute_combination , Proposed_composition from jcigrade_composition where Label_name='"
+				+ gradeComp + "'";
+
+		List<Object[]> list = currentSession().createSQLQuery(sqlforGrades).list();
+		return list;
+	}
+
+	@Override
 	public ModelAndView pcso_details(List<String> pcsoDates, String gradeComp, String deliveryType) {
 
 		LocalDate obj = LocalDate.now();
@@ -69,11 +89,7 @@ public class ContractGenerationDaoImpl2 implements ContractGenerationDao2 {
 
 		SQLQuery query = currentSession().createSQLQuery(querystr.toString());
 		rows = query.list();
-
-		String sqlforGrades = "select Jute_combination , Proposed_composition from jcigrade_composition where Label_name='"
-				+ gradeComp + "'";
-
-		List<Object[]> list = currentSession().createSQLQuery(sqlforGrades).list();
+		List<Object[]> listOfGradeComp = getListOfGradeComposition(gradeComp);
 
 		System.out.println();
 		System.out.println();
@@ -82,7 +98,7 @@ public class ContractGenerationDaoImpl2 implements ContractGenerationDao2 {
 		System.out.println();
 		System.out.println();
 		int i = 0;
-		for (Object[] rObject : list) {
+		for (Object[] rObject : listOfGradeComp) {
 			gc.add((Double) rObject[1]);
 			System.out.println(rObject[0]);
 			System.out.println((Double) rObject[1]);
@@ -93,14 +109,11 @@ public class ContractGenerationDaoImpl2 implements ContractGenerationDao2 {
 		System.out.println();
 		System.out.println();
 
-		String sqlQueryToGetHighestPrice = "select top 1 grade1, grade2, grade3, grade4, grade5, grade6 from jcientry_derivative_price where grade1 + grade2 + grade3 + grade4 + grade5 + grade6 = (select Max(grade1+grade2+grade3+grade4+grade5+grade6) as SumGrades from jcientry_derivative_price where state_name='Assam' and crop_year='"
-				+ cropYear + "'and delivery_type='" + deliveryType + "')";
+		List<Object[]> listOfGradesPrice = getListOfGradesPrice(deliveryType, cropYear);
 
-		List<Object[]> listOfGrades = currentSession().createSQLQuery(sqlQueryToGetHighestPrice).list();
+		System.out.println(listOfGradesPrice.size());
 
-		System.out.println(listOfGrades.size());
-
-		for (Object[] gradeP : listOfGrades) {
+		for (Object[] gradeP : listOfGradesPrice) {
 			// pg.add(gradeP.);
 
 			pg.add(((BigDecimal) gradeP[0]).doubleValue());
@@ -171,6 +184,31 @@ public class ContractGenerationDaoImpl2 implements ContractGenerationDao2 {
 		int count = (Integer) currentSession().createSQLQuery(sql).uniqueResult();
 
 		return count > 0 ? true : false;
+	}
+
+	@Override
+	public List<Contractgeneration> getAllContract(){
+		
+		String sqlQuery = "select * from jcicontract ORDER BY Contract_date desc";
+	    
+		List<Object[]> list = currentSession().createSQLQuery(sqlQuery).list();
+		
+		List<Contractgeneration> listOfAllContracts = new ArrayList<>();
+		
+		for(Object[] eleObjects : list) {
+			
+			Contractgeneration contractgeneration = new Contractgeneration();
+			contractgeneration.setPcso_date((String)eleObjects[22]);
+			contractgeneration.setContract_identification_no((String)eleObjects[7]);
+			contractgeneration.setContract_date((String)eleObjects[6]);
+			contractgeneration.setDelivery_type((String)eleObjects[14]);
+			contractgeneration.setContract_qty((String)eleObjects[9]);
+			contractgeneration.setContract_value((Double)eleObjects[11]);
+			
+			listOfAllContracts.add(contractgeneration);
+		}
+		return listOfAllContracts;
+		  
 	}
 
 }

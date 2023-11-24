@@ -266,20 +266,20 @@ public class ContractgenerationController {
 	}
 	
 	
-	  @RequestMapping(value= {"viewcontractgeneration"},  method = { RequestMethod.GET }) 
-	  
-	  public ModelAndView viewFarmerList(HttpServletRequest request) 
-	  {
-		  ModelAndView mv = new  ModelAndView("contractgenerationlist"); 
-		  String username =(String)request.getSession().getAttribute("usrname");
-	  List<UpdatedContractQtyDTO> updatedContractQtyDTO = contractgenerationService.getAllMills();
-	  mv.addObject("UpdatedContractQtyDTO", updatedContractQtyDTO); 
-	  if(username == null) {
-      	mv= new ModelAndView("index");
-          }
-	  return mv;
-	  }
-	 
+//	  @RequestMapping(value= {"viewcontractgeneration"},  method = { RequestMethod.GET }) 
+//	  
+//	  public ModelAndView viewFarmerList(HttpServletRequest request) 
+//	  {
+//		  ModelAndView mv = new  ModelAndView("contractgenerationlist"); 
+//		  String username =(String)request.getSession().getAttribute("usrname");
+//	  List<UpdatedContractQtyDTO> updatedContractQtyDTO = contractgenerationService.getAllMills();
+//	  mv.addObject("UpdatedContractQtyDTO", updatedContractQtyDTO); 
+//	  if(username == null) {
+//      	mv= new ModelAndView("index");
+//          }
+//	  return mv;
+//	  }
+//	 
 
 	
 	@RequestMapping("contractgenerationDelete")

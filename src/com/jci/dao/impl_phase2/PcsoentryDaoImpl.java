@@ -48,7 +48,7 @@ public class PcsoentryDaoImpl implements PcsoentryDao {
 	@Override
 	public List<Object[]> getAlldata() {
 		// TODO Auto-generated method stub
-		String querystr = "select client_unit_code,unit_name from jcimilldetailchild";
+		String querystr = "select client_unit_code,unit_name from jcimilldetailchild where";
 		
 		List<Object[]> millsList = currentSession().createSQLQuery(querystr).list();
 		

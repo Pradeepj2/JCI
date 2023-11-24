@@ -1,6 +1,10 @@
 package com.jci.controller;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
@@ -15,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Session;
@@ -36,6 +42,19 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.gson.Gson;
+import com.itextpdf.io.codec.Base64.InputStream;
+import com.itextpdf.io.codec.Base64.OutputStream;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.border.Border;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Div;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.property.TextAlignment;
 import com.jci.model.Contractgeneration;
 import com.jci.model.EntryDerivativePrice;
 import com.jci.model.EntryofGradeCompositionModel;
@@ -44,6 +63,7 @@ import com.jci.model.PCSORequestLetter;
 import com.jci.model.PcsoDateModel;
 import com.jci.model.RoDispatchModel;
 import com.jci.model.StateList;
+import com.jci.model.UpdatedContractQtyDTO;
 import com.jci.service.DistrictService;
 import com.jci.service_phase2.ContractGenerationService2;
 import com.jci.service_phase2.EntryDerivativePriceService2;
@@ -53,6 +73,7 @@ import com.jci.service.StateService;
 import com.jci.service.Impl.SendMail;
 import com.jci.service_phase2.PcsoentryService;
 import com.jci.service_phase2.RoDispatchService;
+import com.lowagie.text.DocumentException;
 
 @Transactional
 @Repository
@@ -400,7 +421,7 @@ public class Controller_V {
 	@ResponseBody
 	@RequestMapping(value = "contractgenerationPcsoWiseSave", method = { RequestMethod.POST })
 	public void saveContractGenerationPcsoWise(HttpServletRequest request, @RequestBody Map<String, Object> requestBody)
-			throws IOException, ParseException {
+			throws IOException, ParseException, DocumentException, AddressException {
 		String username = (String) request.getSession().getAttribute("usrname");
 		ModelAndView mv = new ModelAndView("contractgeneration");
 //		if (username == null) {
@@ -439,30 +460,57 @@ public class Controller_V {
 		String contractdate = (String) requestBody.get("contractdate");
 		String deliveryType = (String) requestBody.get("deliveryType");
 		String gradeComp = (String) requestBody.get("gradeComp");
-		DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
 		for (Map<String, String> millDetail : millDetails) {
 			Contractgeneration contractgeneration = new Contractgeneration();
-			Double contractedValue = 0.0;
+
 			int millCode = Integer.parseInt(millDetail.get("millCode"));
+			String millNameString = millDetail.get("millName");
+			Double millQty = Double.parseDouble(millDetail.get("Qty"));
+			String finalGeneratedContractNo = "JCI/" + millCode + "/" + cropYear + "/" + contractIdn;
 
 			contractgeneration.setPcso_date(joinDate);
 			contractgeneration.setContract_identification_no(contractIdn);
 			contractgeneration.setContract_qty(contractQty);
 			contractgeneration.setContract_date(contractdate);
 			contractgeneration.setDelivery_type(deliveryType);
-			contractgeneration.setContract_no("JCI/" + millCode + "/" + cropYear + "/" + contractIdn);	
+			contractgeneration.setContract_no(finalGeneratedContractNo);
 			contractgeneration.setContract_value(Double.parseDouble(millDetail.get("contractedValue")));
 			contractgeneration.setCreated_date(new Date());
 			contractgeneration.setCreated_by(refId);
 			contractgeneration.setGrade_composition(gradeComp);
 			contractgeneration.setMill_code(millCode);
-			contractgeneration.setMill_name(millDetail.get("millName"));
-			contractgeneration.setMill_qty((Double.parseDouble(millDetail.get("Qty"))));
+			contractgeneration.setMill_name(millNameString);
+			contractgeneration.setMill_qty(millQty);
+			String fileName = contractIdn + "invoice" + millCode + ".pdf";
+			contractgeneration.setContract_acceptance_doc(fileName);
+
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 			LocalDate currentDate = LocalDate.now();
 			LocalDate tenDaysAfter = currentDate.plusDays(10); // Add 10 days
 			contractgeneration.setPayment_duedate(tenDaysAfter.format(formatter));
+
+			PdfGenerator pdfGenerator = new PdfGenerator();
+			List<Object[]> GradePriceList = contractGenerationService2.getListOfGradesPrice(deliveryType, cropYear);
+			List<Object[]> GradeCompList = contractGenerationService2.getListOfGradeComposition(gradeComp);
+
+			pdfGenerator.generatePdf(finalGeneratedContractNo, millNameString, millCode, millQty, cropYear,
+					GradePriceList, GradeCompList, fileName, deliveryType, contractdate);
+
+			String file = "C:\\Users\\pradeep.rathor\\Desktop\\JCI-PHASE2\\JCI-CMS\\target\\" + contractIdn + "\\"
+					+ contractIdn + "invoice" + millCode + ".pdf";
+
+			System.err.println(file);
+
+			SendMail sendMail = new SendMail();
+			InternetAddress[] toAddresses = { new InternetAddress("pradeep.rathor@cyfuture.com") };
+
+			String body = "Invoice of distributed jute to mill";
+			String sub = "Invoice";
+
+//			 sendMail.sendEmailWithAttachment( file);
+			sendMail.sendEmail(toAddresses, body, sub, file, fileName);
+
 			System.out.println();
 			System.out.println();
 			System.out.println(contractgeneration.toString());
@@ -471,7 +519,19 @@ public class Controller_V {
 			contractGenerationService2.create(contractgeneration);
 		}
 
-//		return mv;
+//     	return mv;
+	}
+
+	@RequestMapping("viewcontractgeneration" )
+	public ModelAndView viewContractGenerationList(HttpServletRequest request) {
+		ModelAndView mv = new ModelAndView("ContractGenerationList");
+		String username = (String) request.getSession().getAttribute("usrname");
+		if (username == null) {
+			mv = new ModelAndView("index");
+		}
+		List<Contractgeneration> listOfAllContract = contractGenerationService2.getAllContract();
+		mv.addObject("listOfAllContract", listOfAllContract);
+		return mv;
 	}
 
 //
@@ -935,7 +995,7 @@ public class Controller_V {
 	// ---------------------------------------------------------
 
 	@RequestMapping("roDispatchInstruction")
-	public ModelAndView viewRoDispatcher(HttpServletRequest request) {
+	public ModelAndView viewRoDispatcher(HttpServletRequest request) throws FileNotFoundException {
 		String username = (String) request.getSession().getAttribute("usrname");
 		if (username == null) {
 			return new ModelAndView("index");
@@ -947,6 +1007,10 @@ public class Controller_V {
 		mv.addObject("loadAllDpc", loadAllDpc);
 		mv.addObject("loadAllDiNo", loadAllDiNo);
 		// mv.addObject("count",countAvaiResult);
+
+		///// generated new file /////////////////////////
+
+		///////////////////////////////////////////////////////////
 
 		return mv;
 	}

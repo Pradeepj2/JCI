@@ -32,6 +32,21 @@ public class ContractGenerationServiceImpl2 implements ContractGenerationService
 		return this.contractGenerationDao2.pcso_details(pcso,gradeComp,deliveryType);
 	}
 
+	@Override
+	public List<Object[]> getListOfGradesPrice(String deliveryType, String cropYear) {
+		return contractGenerationDao2.getListOfGradesPrice(deliveryType, cropYear);
+	}
+
+	@Override
+	public List<Object[]> getListOfGradeComposition(String gradeComp) {
+		return contractGenerationDao2.getListOfGradeComposition(gradeComp);
+	}
+
+	@Override
+	public List<Contractgeneration> getAllContract() {
+	return contractGenerationDao2.getAllContract();
+	}
+
  
 
 }
