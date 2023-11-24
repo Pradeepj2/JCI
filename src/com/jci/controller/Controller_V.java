@@ -85,7 +85,8 @@ public class Controller_V {
 
 	@Autowired
 	ContractGenerationService2 contractGenerationService2;
-
+//hahahaha//
+	
 	@Autowired
 	EntryDerivativePriceService2 entryDerivativePriceService2;
 
