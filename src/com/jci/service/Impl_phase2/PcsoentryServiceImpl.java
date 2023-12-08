@@ -72,5 +72,20 @@ public class PcsoentryServiceImpl implements PcsoentryService {
 		return this.pcsoentrydao.getAllLables();
 	}
 
+	@Override
+	public List<String> getUniqueRefNos() {
+		return this.pcsoentrydao.getUniqueRefNos();
+	}
+
+	@Override
+	public List<EntryofpcsoModel> getAllMillDetailsOfRefNo(String refNo) {
+	return this.pcsoentrydao.getAllMillDetailsOfRefNo(refNo);
+	}
+
+	@Override
+	public int getCountOfTotalEntries() {
+		return this.pcsoentrydao.getCountOfTotalEntries();
+	}
+
 
 }

@@ -25,7 +25,7 @@ import com.jci.model.EntryDerivativePrice;
 import com.jci.model.EntryofpcsoModel;
 import com.jci.model.PcsoDateModel;
 
-
+import antlr.TokenWithIndex;
 
 @Transactional
 @Repository
@@ -44,30 +44,29 @@ public class PcsoentryDaoImpl implements PcsoentryDao {
 		currentSession().saveOrUpdate(entryofpcso);
 	}
 
-
 	@Override
 	public List<Object[]> getAlldata() {
 		// TODO Auto-generated method stub
-		String querystr = "select client_unit_code,unit_name from jcimilldetailchild where";
-		
+		String querystr = "select client_unit_code,unit_name from jcimilldetailchild";
+
 		List<Object[]> millsList = currentSession().createSQLQuery(querystr).list();
-		
+
 		return millsList;
 
 	}
 
 	@Override
-	public List<EntryofpcsoModel> getAllPcso(){
-		Criteria c = this.sessionFactory.getCurrentSession().createCriteria(EntryofpcsoModel.class);
-	      List<EntryofpcsoModel> ll = c.list();
-			return ll;	   
+	public List<EntryofpcsoModel> getAllPcso() {
+		Criteria c = this.sessionFactory.getCurrentSession().createCriteria(EntryofpcsoModel.class)
+				.addOrder(Order.desc("created_date"));
+		List<EntryofpcsoModel> ll = c.list();
+		return ll;
 
 	}
-	
-	
+
 	@Override
 	public void delete(int id) {
-		//String refNo = pcso.getReference_no();
+		// String refNo = pcso.getReference_no();
 //		String dAll = pcso.getTotal_allocation();
 //		String sTAll = pcso.getSumof_totalallocation();
 //		int delAllocation = Integer.parseInt(dAll.substring(0, dAll.length() - 4));
@@ -85,25 +84,17 @@ public class PcsoentryDaoImpl implements PcsoentryDao {
 //		this.sessionFactory.getCurrentSession().createSQLQuery(queryStr2).setParameter("sTAll", newSum)
 //				.setParameter("cDate", cDate).setParameter("refNo", refNo).executeUpdate();
 	}
-	
-	
-	
-	
 
 	@Override
 	public List<String> getAllDates() {
 		List<String> ll = new ArrayList<>();
 		List<String> rows = new ArrayList<>();
 		String querystr = "  select  distinct(pcso_date) FROM jcientryof_pcso";
-		return currentSession().createSQLQuery(querystr).list();		
+		return currentSession().createSQLQuery(querystr).list();
 	}
-	
-
-
-
 
 	@Override
-	public EntryofpcsoModel getPcso(int refid) {		
+	public EntryofpcsoModel getPcso(int refid) {
 		return (EntryofpcsoModel) currentSession().get(EntryofpcsoModel.class, refid);
 	}
 //
@@ -142,29 +133,67 @@ public class PcsoentryDaoImpl implements PcsoentryDao {
 	@Override
 	public List<String> getAllRequest() {
 		String sqlString = "select jci_ref_no from jcipcso_gen";
-		List<String> list = currentSession().createSQLQuery(sqlString).list();	
+		List<String> list = currentSession().createSQLQuery(sqlString).list();
 		return list;
 	}
 
 	@Override
 	public Object loadAllDetailsOfLetter(String refNo) {
-		String sqlString = "select * from jcipcso_gen where jci_ref_no='"+refNo+"'";
+		String sqlString = "select * from jcipcso_gen where jci_ref_no='" + refNo + "'";
 		Object list = currentSession().createSQLQuery(sqlString).list();
 		return list;
 	}
 
- 
-
 	@Override
 	public void update(EntryofpcsoModel entryodpcso, int refid) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public List<String> getAllLables() {
 		String sqlString = "select distinct(Label_name) from jcigrade_composition";
-	     return currentSession().createSQLQuery(sqlString).list();
+		return currentSession().createSQLQuery(sqlString).list();
+	}
+
+	@Override
+	public List<String> getUniqueRefNos() {
+		String sql = "select distinct reference_no from jcientryof_pcso";
+		List<String> list = currentSession().createSQLQuery(sql).list();
+		return list;
+	}
+
+	@Override
+	public List<EntryofpcsoModel> getAllMillDetailsOfRefNo(String refNo) {
+		String sql = "select * from jcientryof_pcso where reference_no = '"+ refNo + "'";
+		
+		List<Object[]> list = currentSession().createSQLQuery(sql).list();
+		
+		List<EntryofpcsoModel> listOfPcso = new ArrayList<>();
+		
+		for(Object[] eleObjects : list) {
+			EntryofpcsoModel model = new EntryofpcsoModel();
+			model.setReference_no((String)eleObjects[12]);
+			model.setLetterRef((String)eleObjects[6]);
+			model.setPcso_date((String)eleObjects[11]);
+			model.setPcsoQty((double)eleObjects[10]);
+			model.setDeliveryPeriod((String)eleObjects[3]);
+			model.setMill_code((String)eleObjects[7]);
+			model.setMill_name((String)eleObjects[8]);
+			model.setAllocatedQty((double)eleObjects[1]);
+			model.setPcsorefid((int)eleObjects[0]);
+			listOfPcso.add(model);
+		}
+		
+		return listOfPcso;
+	}
+
+
+
+	@Override
+	public int getCountOfTotalEntries() {
+		String sqString = "select COUNT( distinct Contract_identification_no ) from jcicontract";
+		return (int)currentSession().createSQLQuery(sqString).uniqueResult();
 	}
 
 }

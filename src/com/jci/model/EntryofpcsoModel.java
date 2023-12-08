@@ -53,7 +53,7 @@ public class EntryofpcsoModel {
 
 	@Column(name = "mill_code")
 	@NotNull
-	private int mill_code;
+	private String mill_code;
 
 	@Column(name = "mill_name" , length = 256)
 	@NotNull
@@ -138,11 +138,11 @@ public class EntryofpcsoModel {
 		this.letterPath = letterPath;
 	}
 
-	public int getMill_code() {
+	public String getMill_code() {
 		return mill_code;
 	}
 
-	public void setMill_code(int mill_code) {
+	public void setMill_code(String mill_code) {
 		this.mill_code = mill_code;
 	}
 
@@ -196,7 +196,7 @@ public class EntryofpcsoModel {
 	}
 
 	public EntryofpcsoModel(int pcsorefid, String reference_no, String reference_date, String pcso_date,
-			String letterRef, String juteRatio, String deliveryPeriod, String letterPath, int mill_code,
+			String letterRef, String juteRatio, String deliveryPeriod, String letterPath, String mill_code,
 			String mill_name, Double allocatedQty, Double pcsoQty, Date created_date, int pcsoContractFlag) {
 		super();
 		this.pcsorefid = pcsorefid;

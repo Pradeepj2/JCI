@@ -32,33 +32,17 @@ public class PCSORequestLetter {
 	@Column(name = "creation_date", length = 30)
 	private Date creation_date;
 	
+	@Column(name = "RequestGenreationDate", length = 30)
+	private String reqGenDate;
+	
+	@Column(name = "crop_year", length = 255)
+	private String cropYear;
+	
 	@Column(name = "letter_path", length = 255)
 	private String letter_path;
 	
-	
-//	@Column(name = "CreationDateTime")
-//	private Date creationDateTime;
-//	
-//	@Column(name = "updateDateTime")
-//	private Date updateDateTime;
-//	
-//	public Date getCreationDateTime() {
-//		return creationDateTime;
-//	}
-//
-//	public void setCreationDateTime(Date creationDateTime) {
-//		this.creationDateTime = creationDateTime;
-//	}
-//
-//	public Date getUpdateDateTime() {
-//		return updateDateTime;
-//	}
-//
-//	public void setUpdateDateTime(Date updateDateTime) {
-//		this.updateDateTime = updateDateTime;
-//	}
-
-	
+	@Column(name = "emailStatus")
+	private int emailStatus = 0;
 	
 
 	public int getReqId() {
@@ -108,6 +92,28 @@ public class PCSORequestLetter {
 	public void setLetter_path(String letter_path) {
 		this.letter_path = letter_path;
 	}
-	
-	
+
+	public String getCropYear() {
+		return cropYear;
+	}
+
+	public void setCropYear(String cropYear) {
+		this.cropYear = cropYear;
+	}
+
+	public String getReqGenDate() {
+		return reqGenDate;
+	}
+
+	public void setReqGenDate(String reqGenDate) {
+		this.reqGenDate = reqGenDate;
+	}
+
+	public int getEmailStatus() {
+		return emailStatus;
+	}
+
+	public void setEmailStatus(int emailStatus) {
+		this.emailStatus = emailStatus;
+	}	
 }

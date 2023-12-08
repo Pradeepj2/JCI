@@ -1,12 +1,21 @@
 package com.jci.controller;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,24 +23,31 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64.Encoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.servlet.http.HttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.id.SequenceIdentityGenerator.Delegate;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,30 +56,17 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.gson.Gson;
-import com.itextpdf.io.codec.Base64.InputStream;
-import com.itextpdf.io.codec.Base64.OutputStream;
-import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.border.Border;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Div;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.element.Text;
-import com.itextpdf.layout.property.TextAlignment;
+
 import com.jci.model.Contractgeneration;
 import com.jci.model.EntryDerivativePrice;
 import com.jci.model.EntryofGradeCompositionModel;
 import com.jci.model.EntryofpcsoModel;
 import com.jci.model.PCSORequestLetter;
-import com.jci.model.PcsoDateModel;
+
 import com.jci.model.RoDispatchModel;
 import com.jci.model.StateList;
-import com.jci.model.UpdatedContractQtyDTO;
+
 import com.jci.service.DistrictService;
 import com.jci.service_phase2.ContractGenerationService2;
 import com.jci.service_phase2.EntryDerivativePriceService2;
@@ -85,8 +88,7 @@ public class Controller_V {
 
 	@Autowired
 	ContractGenerationService2 contractGenerationService2;
-//hahahaha//
-	
+
 	@Autowired
 	EntryDerivativePriceService2 entryDerivativePriceService2;
 
@@ -118,16 +120,23 @@ public class Controller_V {
 	@RequestMapping("/pcsoRequestLetter")
 	public ModelAndView pcsoRequestLetter(HttpServletRequest request) {
 		String username = (String) request.getSession().getAttribute("usrname");
+		String cropYearString = (String) request.getSession().getAttribute("currCropYear");
+		double contractedQty = genReqLetterService.getTotalContractedQty(cropYearString);
 		ModelAndView mv = new ModelAndView("PCSORequestLetter");
+		mv.addObject("totalContract", contractedQty);
 		if (username == null) {
 			mv = new ModelAndView("index");
 		}
+
+		List<PCSORequestLetter> topThreeRecords = genReqLetterService.getTopThreeRecords(cropYearString);
+		mv.addObject("topThreeRecords", topThreeRecords);
+
 		return mv;
 	}
 
 	@RequestMapping("generatePCSORequest")
 	public ModelAndView generatePCSORequestLetter(HttpServletRequest request, RedirectAttributes redirectAttributes)
-			throws ParseException {
+			throws ParseException, DocumentException, IOException {
 		ModelAndView mv = new ModelAndView("PCSORequestLetter");
 		String username = (String) request.getSession().getAttribute("usrname");
 		if (username == null) {
@@ -138,22 +147,32 @@ public class Controller_V {
 		PCSORequestLetter requestLetter = new PCSORequestLetter();
 
 		String referenceno = request.getParameter("referenceno");
-		double system_qty = Double.parseDouble(request.getParameter("sysAvailQty"));
+		String reqDate = request.getParameter("reqDate");
+		String crop_year = request.getParameter("crop_year");
+		double system_qty = Double.parseDouble(request.getParameter("uncontractedQty"));
 		double req_qty = Double.parseDouble(request.getParameter("reqQty"));
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-		// String dateString = request.getParameter("date");
-//		Date convertTodateDate = simpleDateFormat.parse(dateString);
-//		String creation_date = simpleDateFormat.format(convertTodateDate);
+//		 String dateString = request.getParameter("date");
 
 		Date creationDateTime = new Date();
+//		Date convertTodateDate = simpleDateFormat.parse(creationDateTime);
 //		requestLetter.setCreationDateTime(creationDateTime);
 
+		String creation_date = simpleDateFormat.format(creationDateTime);
 		requestLetter.setReference_no(referenceno);
+		requestLetter.setCropYear(crop_year);
 		requestLetter.setSys_avail_qty(system_qty);
 		requestLetter.setReq_qty(req_qty);
+		requestLetter.setReqGenDate(reqDate);
 		requestLetter.setCreation_date(creationDateTime);
+		requestLetter.setLetter_path(referenceno + ".pdf");
 
 		genReqLetterService.create(requestLetter);
+
+		PdfGenerator pdfGenerator = new PdfGenerator();
+		pdfGenerator.generatePdfOfRequestLetter(referenceno, crop_year, creation_date, req_qty + "",
+				referenceno + ".pdf");
+
 		redirectAttributes.addFlashAttribute("msg",
 				"<div class=\"alert alert-success\"><b>Success !</b> Record created successfully.</div>\r\n" + "");
 
@@ -168,6 +187,84 @@ public class Controller_V {
 		mv.addObject("letters", letters);
 
 		return mv;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "sendThankYouEmailToJC", method = RequestMethod.GET)
+	public void sendThankYouEmailToJC(HttpServletRequest request, RedirectAttributes redirectAttributes)
+			throws AddressException {
+		String refNo = request.getParameter("refNo");
+		String date = request.getParameter("date");
+		String cropYear = request.getParameter("cropYear");
+		String qty = request.getParameter("qty");
+		int id = Integer.parseInt(request.getParameter("id"));
+
+		String sub = "Expressing Gratitude for Contract Approval";
+		String body = "Dear Jute Commissioner Officer ,\n " + "Hope This email finds you well ,\n"
+				+ "Thank you for accepting the pco request of reference no : " + refNo + "\n " + "contract Date : "
+				+ date + "\n " + "Under this crop year " + cropYear + "\n" + " requested qty " + qty + "\n "
+				+ "Thanks & Regards \n " + "Jute Corporation Of India";
+
+		InternetAddress[] toAddresses = { new InternetAddress("pradeep.rathor@cyfuture.com"),
+				new InternetAddress("pradeeprathor3110@gmail.com") };
+
+		SendMail sendMail = new SendMail();
+
+		CompletableFuture.runAsync(() -> {
+			try {
+				sendMail.sendEmailWithoutAttachment(toAddresses, sub, body);
+				// Your email sending code here
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+
+		genReqLetterService.setEmailStatus(id, 1);
+
+//		return new ResponseEntity<>("{\"redirect\": \"pcsoRequestLetterList.obj\"}", HttpStatus.OK);
+//		return new ModelAndView(new("pcsoRequestLetterList.obj"));
+
+	}
+
+	@RequestMapping(value = "downloadRequestLetter", method = RequestMethod.GET)
+	public void downloadRequestLetter(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String fileName = request.getParameter("imagePath");
+		System.err.println(fileName);
+		File imageFile = new File(fileName);
+
+		if (imageFile.exists()) {
+			try {
+				// Set the content type based on the file type
+				response.setContentType("application/pdf");
+
+				// download
+				// response.setHeader("Content-Disposition", "attachment; filename=" +
+				// fileName);
+
+				// view
+				response.setHeader("Content-Disposition", "");
+
+				// Stream the file content to the response
+				FileInputStream fileInputStream = new FileInputStream(imageFile);
+				OutputStream responseOutputStream = response.getOutputStream();
+
+				byte[] buffer = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+					responseOutputStream.write(buffer, 0, bytesRead);
+				}
+
+				fileInputStream.close();
+				responseOutputStream.close();
+			} catch (IOException e) {
+				// Handle IO exception
+				e.printStackTrace();
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+
 	}
 
 	@RequestMapping("pcsoRequestDelete")
@@ -251,7 +348,7 @@ public class Controller_V {
 				entryofpcsoCopy.setReference_date(referencedate);
 				entryofpcsoCopy.setReference_no(referenceno);
 
-				int millcode = Integer.parseInt(request.getParameter("millcode" + c));
+				String millcode = request.getParameter("millcode" + c);
 				String millname = request.getParameter("millname" + c);
 				Double tallocation = Double.parseDouble(request.getParameter("totalallocation" + c));
 				if (tallocation != 0.0 && tallocation != null) {
@@ -312,7 +409,7 @@ public class Controller_V {
 				entryofpcso.setPcsoQty(pcsoQty);
 
 				// dynamic values
-				int millcode = Integer.parseInt(request.getParameter("millcode" + i));
+				String millcode = request.getParameter("millcode" + i);
 				String millname = request.getParameter("millname" + i);
 				Double tallocation = Double.parseDouble(request.getParameter("totalallocation" + i));
 				entryofpcso.setMill_code(millcode);
@@ -338,11 +435,24 @@ public class Controller_V {
 		String username = (String) request.getSession().getAttribute("usrname");
 		ModelAndView mv = new ModelAndView("pcsolist");
 		List<EntryofpcsoModel> pcso = pcsoentryservice.getAllPcso();
+		List<String> refNos = pcsoentryservice.getUniqueRefNos();
+		mv.addObject("refNos", refNos);
 		mv.addObject("pcsolist", pcso);
 		if (username == null) {
 			mv = new ModelAndView("index");
 		}
 		return mv;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "getAllMillDetails" }, method = { RequestMethod.GET })
+	public String getAllMillDetails(final HttpServletRequest request) {
+		String refNo = request.getParameter("refNo");
+		List<EntryofpcsoModel> allMills = this.pcsoentryservice.getAllMillDetailsOfRefNo(refNo);
+
+		Gson gson = new Gson();
+		return gson.toJson(allMills);
+
 	}
 
 	@RequestMapping("pcsoDelete")
@@ -413,61 +523,42 @@ public class Controller_V {
 		}
 
 		List<String> pcso = pcsoentryservice.getAllDates();
+		int count = pcsoentryservice.getCountOfTotalEntries();
 		List<String> gradeCompositionLable = pcsoentryservice.getAllLables();
 		mv.addObject("pcsoDates", (Object) pcso);
+		mv.addObject("count", count);
 		mv.addObject("gradeCompositionLable", gradeCompositionLable);
 		return mv;
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "contractgenerationPcsoWiseSave", method = { RequestMethod.POST })
-	public void saveContractGenerationPcsoWise(HttpServletRequest request, @RequestBody Map<String, Object> requestBody)
+	public String saveContractGenerationPcsoWise(HttpServletRequest request,
+			@RequestBody Map<String, Object> requestBody)
 			throws IOException, ParseException, DocumentException, AddressException {
-		String username = (String) request.getSession().getAttribute("usrname");
+
+		String cropYear = (String) request.getSession().getAttribute("currCropYear");
 		ModelAndView mv = new ModelAndView("contractgeneration");
-//		if (username == null) {
-//			return new ModelAndView("index");	
-//		}
 
 		List<Map<String, String>> millDetails = (List<Map<String, String>>) requestBody.get("millDetails");
 
 		List<String> pcsoDate = (List<String>) requestBody.get("pcsoDate");
 		int refId = (Integer) request.getSession().getAttribute("userId");
-
-		// current financial year
-
-		LocalDate obj = LocalDate.now();
-		// LocalDate obj = LocalDate.of(2020, 1, 8)
-
-		int currentyear = obj.getYear();
-		int nextyear = 0;
-		int month = obj.getMonthValue();
-
-		if (month >= 7) {
-			nextyear = currentyear + 1;
-		} else {
-			nextyear = currentyear;
-			currentyear -= 1;
-		}
-
-		String cropYear = currentyear + "-" + nextyear;
-
-		//
-
 		String joinDate = String.join(",", pcsoDate);
 
 		String contractIdn = (String) requestBody.get("contractIdn");
+		int SortingId = Integer.parseInt((String) requestBody.get("SortingId") );
 		String contractQty = (String) requestBody.get("contractQty");
 		String contractdate = (String) requestBody.get("contractdate");
-		String deliveryType = (String) requestBody.get("deliveryType");
 		String gradeComp = (String) requestBody.get("gradeComp");
 
 		for (Map<String, String> millDetail : millDetails) {
 			Contractgeneration contractgeneration = new Contractgeneration();
 
-			int millCode = Integer.parseInt(millDetail.get("millCode"));
+			String millCode = millDetail.get("millCode");
 			String millNameString = millDetail.get("millName");
 			Double millQty = Double.parseDouble(millDetail.get("Qty"));
+			String deliveryType = millDetail.get("delivery_type");
 			String finalGeneratedContractNo = "JCI/" + millCode + "/" + cropYear + "/" + contractIdn;
 
 			contractgeneration.setPcso_date(joinDate);
@@ -481,9 +572,11 @@ public class Controller_V {
 			contractgeneration.setCreated_by(refId);
 			contractgeneration.setGrade_composition(gradeComp);
 			contractgeneration.setMill_code(millCode);
+			contractgeneration.setCropYear(cropYear);
 			contractgeneration.setMill_name(millNameString);
 			contractgeneration.setMill_qty(millQty);
-			String fileName = contractIdn + "invoice" + millCode + ".pdf";
+			contractgeneration.setSortingId(SortingId);
+			String fileName = contractIdn + "Contract" + millCode + ".pdf";
 			contractgeneration.setContract_acceptance_doc(fileName);
 
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -492,38 +585,137 @@ public class Controller_V {
 			contractgeneration.setPayment_duedate(tenDaysAfter.format(formatter));
 
 			PdfGenerator pdfGenerator = new PdfGenerator();
-			List<Object[]> GradePriceList = contractGenerationService2.getListOfGradesPrice(deliveryType, cropYear);
+			List<Object[]> GradePriceList = contractGenerationService2.getListOfGradesPrice(cropYear);
 			List<Object[]> GradeCompList = contractGenerationService2.getListOfGradeComposition(gradeComp);
+			
+		    String filePath = "C:\\Users\\pradeep.rathor\\Desktop\\JCIStuff\\Contracts\\"+contractIdn;
+			
+			//System.err.println(filePath);
 
+		    File parentDir = new File(filePath);
+			if (!parentDir.exists()) {
+				parentDir.mkdirs();
+			}
+			
+			filePath +=  "\\"+contractIdn +"Contract" + millCode + ".pdf";
+			
+			//System.err.println(filePath);
 			pdfGenerator.generatePdf(finalGeneratedContractNo, millNameString, millCode, millQty, cropYear,
-					GradePriceList, GradeCompList, fileName, deliveryType, contractdate);
+					GradePriceList, GradeCompList, fileName, deliveryType, contractdate,filePath);
 
-			String file = "C:\\Users\\pradeep.rathor\\Desktop\\JCI-PHASE2\\JCI-CMS\\target\\" + contractIdn + "\\"
-					+ contractIdn + "invoice" + millCode + ".pdf";
-
-			System.err.println(file);
-
+			// send email
+			String body = "Please find below attachment to get full details of contract grade wise..";
+			String sub = "Contract Details";
+			final String filePathDir = filePath;
 			SendMail sendMail = new SendMail();
 			InternetAddress[] toAddresses = { new InternetAddress("pradeep.rathor@cyfuture.com") };
 
-			String body = "Invoice of distributed jute to mill";
-			String sub = "Invoice";
-
-//			 sendMail.sendEmailWithAttachment( file);
-			sendMail.sendEmail(toAddresses, body, sub, file, fileName);
-
-			System.out.println();
-			System.out.println();
-			System.out.println(contractgeneration.toString());
-			System.out.println();
-			System.out.println();
+			CompletableFuture.runAsync(() -> {
+				try {
+					sendMail.sendEmail(toAddresses, body, sub, filePathDir, fileName);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+			
 			contractGenerationService2.create(contractgeneration);
 		}
 
-//     	return mv;
+		return "Saved";
 	}
 
-	@RequestMapping("viewcontractgeneration" )
+	/*
+	 * @ResponseBody
+	 * 
+	 * @RequestMapping(value = "contractgenerationPcsoWiseSave", method = {
+	 * RequestMethod.POST }) public String
+	 * saveContractGenerationPcsoWise(HttpServletRequest request,
+	 * 
+	 * @RequestBody Map<String, Object> requestBody) throws IOException,
+	 * ParseException, DocumentException, AddressException {
+	 * 
+	 * String cropYear = (String) request.getSession().getAttribute("currCropYear");
+	 * ModelAndView mv = new ModelAndView("contractgeneration");
+	 * 
+	 * List<Map<String, String>> millDetails = (List<Map<String, String>>)
+	 * requestBody.get("millDetails");
+	 * 
+	 * List<String> pcsoDate = (List<String>) requestBody.get("pcsoDate"); int refId
+	 * = (Integer) request.getSession().getAttribute("userId");
+	 * 
+	 * String joinDate = String.join(",", pcsoDate);
+	 * 
+	 * String contractIdn = (String) requestBody.get("contractIdn"); String
+	 * contractQty = (String) requestBody.get("contractQty"); String contractdate =
+	 * (String) requestBody.get("contractdate"); String gradeComp = (String)
+	 * requestBody.get("gradeComp");
+	 * 
+	 * for (Map<String, String> millDetail : millDetails) { Contractgeneration
+	 * contractgeneration = new Contractgeneration();
+	 * 
+	 * String millCode = millDetail.get("millCode"); String millNameString =
+	 * millDetail.get("millName"); Double millQty =
+	 * Double.parseDouble(millDetail.get("Qty")); String deliveryType =
+	 * millDetail.get("delivery_type"); String finalGeneratedContractNo = "JCI/" +
+	 * millCode + "/" + cropYear + "/" + contractIdn;
+	 * 
+	 * contractgeneration.setPcso_date(joinDate);
+	 * contractgeneration.setContract_identification_no(contractIdn);
+	 * contractgeneration.setContract_qty(contractQty);
+	 * contractgeneration.setContract_date(contractdate);
+	 * contractgeneration.setDelivery_type(deliveryType);
+	 * contractgeneration.setContract_no(finalGeneratedContractNo);
+	 * contractgeneration.setContract_value(Double.parseDouble(millDetail.get(
+	 * "contractedValue"))); contractgeneration.setCreated_date(new Date());
+	 * contractgeneration.setCreated_by(refId);
+	 * contractgeneration.setGrade_composition(gradeComp);
+	 * contractgeneration.setMill_code(millCode);
+	 * contractgeneration.setCropYear(cropYear);
+	 * contractgeneration.setMill_name(millNameString);
+	 * contractgeneration.setMill_qty(millQty); String fileName = contractIdn +
+	 * "Contract" + millCode + ".pdf";
+	 * contractgeneration.setContract_acceptance_doc(fileName);
+	 * 
+	 * DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+	 * LocalDate currentDate = LocalDate.now(); LocalDate tenDaysAfter =
+	 * currentDate.plusDays(10); // Add 10 days
+	 * contractgeneration.setPayment_duedate(tenDaysAfter.format(formatter));
+	 * 
+	 * PdfGenerator pdfGenerator = new PdfGenerator(); List<Object[]> GradePriceList
+	 * = contractGenerationService2.getListOfGradesPrice(cropYear); List<Object[]>
+	 * GradeCompList =
+	 * contractGenerationService2.getListOfGradeComposition(gradeComp);
+	 * 
+	 * // pdf generate pdfGenerator.generatePdf(finalGeneratedContractNo,
+	 * millNameString, millCode, millQty, cropYear, GradePriceList, GradeCompList,
+	 * fileName, deliveryType, contractdate);
+	 * 
+	 * String filePath =
+	 * "C:\\Users\\pradeep.rathor\\Desktop\\Backup\\JCI-CMS\\target\\" + contractIdn + "
+	 * \\" + contractIdn + "Contract" + millCode + ".pdf";
+	 * 
+	 * System.err.println(filePath);
+	 * 
+	 * // send email String body =
+	 * "Please find below attachment to get full details of contract grade wise..";
+	 * String sub = "Contract Details"; SendMail sendMail = new SendMail();
+	 * InternetAddress[] toAddresses = { new
+	 * InternetAddress("pradeep.rathor@cyfuture.com") };
+	 * 
+	 * CompletableFuture.runAsync(() -> { try { sendMail.sendEmail(toAddresses,
+	 * body, sub, filePath, fileName); } catch (Exception e) { e.printStackTrace();
+	 * } });
+	 * 
+	 * 
+	 * System.out.println(); System.out.println();
+	 * System.out.println(contractgeneration.toString()); System.out.println();
+	 * System.out.println(); contractGenerationService2.create(contractgeneration);
+	 * }
+	 * 
+	 * // return new ModelAndView(new RedirectView("viewcontractgeneration.obj"));
+	 * System.err.println("qwerthjhgfdsdfgh"); return "Saved"; }
+	 */
+	@RequestMapping("viewcontractgeneration")
 	public ModelAndView viewContractGenerationList(HttpServletRequest request) {
 		ModelAndView mv = new ModelAndView("ContractGenerationList");
 		String username = (String) request.getSession().getAttribute("usrname");
@@ -531,8 +723,25 @@ public class Controller_V {
 			mv = new ModelAndView("index");
 		}
 		List<Contractgeneration> listOfAllContract = contractGenerationService2.getAllContract();
-		mv.addObject("listOfAllContract", listOfAllContract);
+
+		for (Contractgeneration contractgeneration : listOfAllContract) {
+			System.err.println(contractgeneration.toString());
+		}
+
+		mv.addObject("contracts", listOfAllContract);
 		return mv;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "getAllContractDetails" }, method = { RequestMethod.GET })
+	public String getAllContractDetails(final HttpServletRequest request) {
+		String contractidn = request.getParameter("contract");
+		List<Contractgeneration> allMillUnderContract = this.contractGenerationService2
+				.getContractFullDetails(contractidn);
+
+		Gson gson = new Gson();
+		return gson.toJson(allMillUnderContract);
+
 	}
 
 //
@@ -550,16 +759,30 @@ public class Controller_V {
 
 		String outerArray = request.getParameter("pcso_dates");
 		String gradeComp = request.getParameter("gradeComp");
-		String deliveryType = request.getParameter("deliveryType");
+		// String deliveryType = request.getParameter("deliveryType");
 
 		outerArray = outerArray.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\"", "'");
 
 		final String[] dateArray = outerArray.split(",");
 		final List<String> list = Arrays.asList(dateArray);
 
-		ModelAndView pcso = contractGenerationService2.pcso_details(list, gradeComp, deliveryType);
+		ModelAndView pcso = contractGenerationService2.pcso_details(list, gradeComp);
 		Gson gson = new Gson();
 		return gson.toJson(pcso);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "updateContractedValue", method = RequestMethod.GET)
+	public String updateContractedValue(final HttpServletRequest request) {
+
+		String deliveryType = request.getParameter("deliveryType");
+		String totalQtyOfMill = request.getParameter("totalQtyOfMill");
+
+		System.err.println(deliveryType + " , " + totalQtyOfMill);
+
+		int updatedVal = contractGenerationService2.updateContractedValue(deliveryType, totalQtyOfMill);
+
+		return updatedVal + "";
 	}
 
 	//////////////////////////////////////////////////////////////////
@@ -586,11 +809,23 @@ public class Controller_V {
 		return mv;
 	}
 
+	public static String priKeyString = "6f@135";
+
 	@RequestMapping("editentryderivativeprice")
-	public ModelAndView editEDP(HttpServletRequest request) {
+	public ModelAndView editEDP(HttpServletRequest request) throws NumberFormatException, Exception {
 		String username = (String) request.getSession().getAttribute("usrname");
 		ModelAndView mv = new ModelAndView("editentryderivativeprice2");
+
 		int der_id = Integer.parseInt(request.getParameter("der_id"));
+
+		// String StringderId = request.getParameter("der_id");
+
+		// EncodeId encodeId = new EncodeId();
+
+		// SecretKey secretKey = (SecretKey)
+		// request.getSession().getAttribute("SecretKey");
+
+		// int der_id = Integer.parseInt(encodeId.decrypt(StringderId, secretKey));
 		EntryDerivativePrice entryDerivativePrice = this.entryDerivativePriceService2.findEDPBYId(der_id);
 		mv.addObject("derivativePrice", entryDerivativePrice);
 		List<StateList> liststate = stateList.getAll();
@@ -878,6 +1113,7 @@ public class Controller_V {
 		}
 
 		String lableName = request.getParameter("labelname");
+		String remark = request.getParameter("remark");
 		String cropYear = request.getParameter("crop_year");
 		int size = Integer.parseInt(request.getParameter("size"));
 		Double availableQty = Double.parseDouble(request.getParameter("available_qty"));
@@ -903,6 +1139,7 @@ public class Controller_V {
 			entryofGradeCompositionModel.setJute_combination(request.getParameter("variety" + i));
 			entryofGradeCompositionModel.setSystem_composition(systemValue);
 			entryofGradeCompositionModel.setProposed_composition(ProposedValue);
+			entryofGradeCompositionModel.setRemark(remark);
 			entryofGradeCompositionModel.setCrop_year(cropYear);
 			entryofGradeCompositionModel.setAvailable_qty(availableQty);
 			entryofGradeCompositionModel.setLabel_name(lableName);

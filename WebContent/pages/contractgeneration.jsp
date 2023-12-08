@@ -49,6 +49,11 @@
 
 </head>
 
+<%
+String cropYear = (String) request.getSession().getAttribute("currCropYear");
+int count = (int) request.getAttribute("count") + 1;
+%>
+
 <body class="fixed-navbar">
 	<div class="page-wrapper">
 		<!-- START HEADER-->
@@ -74,8 +79,8 @@
 
 									<div class="row">
 
-										<div class="col-sm-4 form-group">
-											<label >Delivery Type</label> <select
+										<!-- 	<div class="col-sm-4 form-group">
+											<label>Delivery Type</label> <select
 												class="form-control pcso" name="deliveryType"
 												id="deliveryType" required>
 												<option disabled selected>-Select-</option>
@@ -83,7 +88,15 @@
 												<option value="Mill-Delivery">Mill Delivery</option>
 
 											</select>
+										</div> -->
+
+
+										<div class="col-sm-4 form-group">
+											<label>Crop Year</label> <input class="form-control"
+												name="crop_year" id="crop_year" value="<%=cropYear%>"
+												readonly>
 										</div>
+
 
 										<div class="col-sm-4 form-group">
 											<label>Grade Composition</label> <select
@@ -109,8 +122,8 @@
 											List<Date> pcsoDates = (List<Date>) request.getAttribute("pcsoDates");
 											%>
 											<select data-placeholder='Choose Dates..'
-												class='chosen-select form-control pcso' multiple tabindex='3'
-												name="pcso_date" id="pcso_date" required>
+												class='chosen-select form-control pcso' multiple
+												tabindex='3' name="pcso_date" id="pcso_date" required>
 												<option disabled>-Select-</option>
 												<%
 												for (int i = 0; i < pcsoDates.size(); i++) {
@@ -124,19 +137,21 @@
 										</div>
 
 
+
 									</div>
 
 
 									<div class="row">
-										<div class="col-sm-4 form-group">
+										<div class="col-sm-3 form-group">
 											<label class="required">Contract identification No.</label> <input
 												class="form-control" name="contractIdn" id="contractIdn"
 												type="text" placeholder="Contract identification No."
-												required> <span id="contractIdnMsg"
-												class="text-danger"></span>
+												value="BT00<%=count%>" required readonly> <span
+												id="contractIdnMsg" class="text-danger"></span>
 
 										</div>
-										<div class="col-sm-4 form-group">
+
+										<div class="col-sm-3 form-group">
 
 											<label class="required">Contact Date</label> <input
 												class="form-control" name="contractDate" id="contactDate"
@@ -144,28 +159,27 @@
 												value="<%=new java.text.SimpleDateFormat("dd-MM-yyyy").format(new java.util.Date())%>">
 										</div>
 
-										<div class="col-sm-4 form-group">
+										<div class="col-sm-3 form-group">
 											<label class="required">Contract Qty.</label> <input
 												class="form-control" name="contract_qty" id="contract_qty"
 												type="number" readonly>
 										</div>
-
-
-									</div>
-									<div class="row">
-										<div class="col-sm-4 form-group">
+										<div class="col-sm-3 form-group">
 											<label class="required">Contract Value</label> <input
 												class="form-control" name="contractValue" id="contractValue"
 												type="number" readonly>
 										</div>
-										<input class="form-control" type="hidden" name="count"
-											id="count">
+
 
 									</div>
+
 									<div class="row">
-										<div class=" col-sm-4 form-group">
+										<input class="form-control" type="hidden" name="count"
+											id="count">
+										<div class=" col-sm-4 form-group">										 
 											<button class="btn btn-success" type="submit" value="Submit"
 												id="submit">Submit</button>
+												
 										</div>
 									</div>
 								</form>
@@ -191,7 +205,10 @@
 <script src="assets/css/chosen.jquery.js" type="text/javascript"></script>
 
 
+
 <script>
+var contractedValueMillWise = [];
+var listOfTotalQty = [];
 $("#pcso_date").chosen();
 $("#pcso_date").addClass("chosen-select");
 var parsedArray = null;
@@ -202,9 +219,12 @@ var count = 0;
 					"change",
 					function() {					
 						var array = [];
+						listOfTotalQty = [];
+						contractedValueMillWise = [];
+						
 						
 						var gradeComp = $("#gradeComp").val();
-						var deliveryType = $("#deliveryType").val();
+						//var deliveryType = $("#deliveryType").val();
 
 						$("#pcso_date").find("option:selected").each(function() {
 							array.push($(this).val());
@@ -224,8 +244,8 @@ var count = 0;
 					    	return;
 					    }
 					    
-					    if(gradeComp != null && deliveryType != null && parsedArray.length != 0 ){
-					    	console.log("called");
+					    if(gradeComp != null && parsedArray.length != 0 ){
+					    	
 					   
 						 $
 								.ajax({
@@ -233,16 +253,16 @@ var count = 0;
 									url : 'pcso_details.obj',
 									data : {
 										"pcso_dates" : jsonArray,
-										"gradeComp":gradeComp,
-										"deliveryType":deliveryType
+										"gradeComp":gradeComp
+										//"deliveryType":deliveryType
 									},
 									success : function(result) {
 										var data1 = jQuery.parseJSON(result).model;
 										var List = data1.List;
 										var TotelContractedValue = data1.totelContractedValue;
-										var contractedValueMillWise = data1.contractedValueMillWise;
+									     contractedValueMillWise = data1.contractedValueMillWise;
 										 count = List.length;
-										 console.log(data1);
+										
 										var sizeOfSingleResultArray = List[0].length; 
 										
 								 	    var htmlTable = '<table border="3px" id="table_r" class="table table-hover table-striped">';
@@ -253,10 +273,13 @@ var count = 0;
 										
 									
 										
-										htmlTable += '<tr><th style="text-align:center">Mill code</th><th style="text-align:center">Mill Name</th>'+dateStringAsColumnName+'<th style="text-align:center">Total allocation</th></tr>';
+										htmlTable += '<tr><th style="text-align:center">Mill code</th><th style="text-align:center">Mill Name</th>'+dateStringAsColumnName+'<th style="text-align:center">Total allocation</th><th style="text-align:center">Delivery Type</th></tr>';
 									
 										htmlTable += '<tbody id="body">';
 										for (i = 0; i < List.length; i++) {
+											
+											listOfTotalQty.push(List[i][sizeOfSingleResultArray-1]);
+											
 											htmlTable += '<tr border="2px"><td id="code'+i+'" style="text-align:center">'
 													+ List[i][1]
 													+ '</td><td id="name'+i+'"style="text-align:center">'
@@ -269,7 +292,8 @@ var count = 0;
 													
 									   htmlTable +=	'<td id="allocated'+i+'" style="text-align:center">'
 													+ List[i][sizeOfSingleResultArray-1]
-													+ '</td></tr>';
+													+ '</td><td><select onchange={updateOnChange('+i+')} class="form-control pcso" name="deliveryType'+i+'" id="deliveryType'+i+'"><option value="Mill-Delivery" selected >Mill Delivery</option><option value="Ex-Godown">Ex-Godown</option></select></td></tr>';
+													
 									   htmlTable +="<input type='hidden' id='contractedValue"+i+"' value='"+contractedValueMillWise[i]+"'>";
 													
 											sum += List[i][sizeOfSingleResultArray-1];
@@ -293,20 +317,14 @@ var count = 0;
 
  $("#submit")
 			.click(
-					
-					
 					function() {
 
 						var pcsoDate = parsedArray;
 						var contractIdn = $("#contractIdn").val();
 						var contractdate = $("#contactDate").val();
 						var contractQty = $("#contract_qty").val();
-						var deliveryType = $("#deliveryType").val();
 						var gradeComp = $("#gradeComp").val();
 						
-						
-						
-						console.log(deliveryType,gradeComp,contractIdn);
 						
 						var millDetails = [];
 				
@@ -314,95 +332,98 @@ var count = 0;
 						$('#table_r #body tr').each(function(index, row) {
 						  var cells = $(row).find('td');
 						
-						  // Assuming the structure of your cells matches the order: Mill Name, Mill Code, Quantity
 						  var millName = $(cells[1]).text();
 						  var millCode = $(cells[0]).text();
 						  var contractedValue = $("#contractedValue"+index).val();
-						  var Qty = $(cells[cells.length - 1]).text(); // Assuming Quantity is in the last cell
+						  var Qty = $(cells[cells.length - 2]).text(); // Assuming Quantity is in the last cell
+						  var delivery_type = $("#deliveryType"+index).val(); // Assuming Quantity is in the last cell
 						  millDetails.push({
 							  "millCode" : millCode,
 							  "millName" : millName,
 							  "contractedValue" : contractedValue,
-							  "Qty" : Qty
+							  "Qty" : Qty,
+							  "delivery_type" : delivery_type
 						  })
 
 						})
 						
-						console.log(millDetails,"millDetails");
+						//console.log(millDetails,"millDetails");
 						
 						var data = {
 								"pcsoDate" : pcsoDate,
 								"contractIdn" : contractIdn,
 								"contractdate" : contractdate,
 								"contractQty" : contractQty,
-								"deliveryType" : deliveryType,
 								"gradeComp" : gradeComp,
 								"millDetails":millDetails,	
+								"SortingId": '<%=count%>'
 						 };
 						 
-						console.log(data);
-
+						//console.log(data);
 						
-                  if(deliveryType != null && gradeComp != null){
-							
-					 $.ajax({
+						
+                if(gradeComp != null){
+				   $.ajax({
 							type : "POST",
 							url : "contractgenerationPcsoWiseSave.obj",
 							data :JSON.stringify(data),
-							contentType: "application/json",  // Set the correct Content-Type
-						    dataType: "json", 
+							async: false,
+							contentType: "application/json",
 							success : function(result) {
-								alert("data saved");
-							   //location.reload(true)
-							/* 	 $("#msg").html("<div class=\"alert alert-success\"><b>Success !</b> Record saved successfully.</div>\r\n");
-								alert("Result Saved Succesfully"); */
-							}
+								// alert("mid");
+								//window.location.href = "viewcontractgeneration.obj";
+								// window.open("viewcontractgeneration.obj");
+								
+							},
+							error: function(xhr, status, error) {
+						        console.error("Error: " + error);
+						    }
 						}); 
-					 
-					 return true;
-	
-						}
-                  
+				 }
                   else{
                 	  return false;
                   }
-						
-					 
-						  	
-						/* if (result) {
-							for (var w = 0; w < document
-									.getElementById("tableData").rows.length; w++) {
-
-								$
-										.ajax({
-											type : "POST",
-											url : "saveUpdatedQty.obj",
-											data : {
-												"millcode" : document
-														.getElementById("tableData").rows[w].cells[0].innerHTML,
-												"qty" : document
-														.getElementById("tableData").rows[w].cells[1].innerHTML,
-												"contactnumber" : contactnumber,
-												"contractdate" : contractdate,
-												"cropyear" : cropyear
-											},
-											success : function(result) {
-												location.reload(true)
-												$("#msg")
-														.html(
-																"<div class=\"alert alert-success\"><b>Success !</b> Table saved successfully.</div>\r\n");
-
-											}
-										});
-							}
-							alert("Result Saved Succesfully");
-						} */
 		 
-					}); 
+	 }); 
 </script>
 
-<script>
 
+<script>
+//alert("script called");
+function updateOnChange(id){ 
+var prevQty = listOfTotalQty[id];
+
+console.log(contractedValueMillWise);
+
+	 $.ajax({
+		type:"GET",
+		url:"updateContractedValue.obj",
+		data:{
+			"deliveryType" : $("#deliveryType"+id).val(),
+			"totalQtyOfMill":listOfTotalQty[id]
+		},
+		success : function(result){
+			contractedValueMillWise[id] = +result;
+			console.log(contractedValueMillWise);
+			for(var ele of contractedValueMillWise){
+				currSum += ele;
+			}
+			
+			$("#contractValue").val(currSum);
+		}
+	}) 
+	
+	var currSum = 0;
+	
+
+	
+}
+</script>
+
+
+
+
+<script>
 $("#contractIdn")
 .on(
 		"blur",
@@ -436,21 +457,7 @@ $("#contractIdn")
 		});
 </script>
 
-<!--  
-<script>
-	function removeTableTr() {
 
-		var seen = {};
-		$('table#table_tr tr').each(function() {
-			var txt = $(this).text();
-			if (seen[txt])
-				$(this).remove();
-			else
-				seen[txt] = true;
-		});
 
-		console.log(seen);
 
-	};
-</script> -->
 </html>

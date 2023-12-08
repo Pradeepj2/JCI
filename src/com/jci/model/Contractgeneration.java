@@ -36,8 +36,8 @@ public class Contractgeneration {
 	@Column(name = "Contract_value", nullable = false)
 	private double Contract_value;
 
-	@Column(name = " Mill_code", nullable = false)
-	private int Mill_code;
+	@Column(name = "Mill_code", nullable = false)
+	private String Mill_code;
 
 	@Column(name = "Mill_name", nullable = false)
 	private String Mill_name;
@@ -80,9 +80,15 @@ public class Contractgeneration {
 
 	@Column(name = "Created_date")
 	private Date Created_date;
+	
+	@Column(name = "CropYear")
+	private String cropYear;
 
 	@Column(name = "Created_by")
 	private int Created_by;
+	
+	@Column(name = "SortingId")
+	private int SortingId;
 
 	public Long getContract_id() {
 		return contract_id;
@@ -140,11 +146,11 @@ public class Contractgeneration {
 		Contract_value = contract_value;
 	}
 
-	public int getMill_code() {
+	public String getMill_code() {
 		return Mill_code;
 	}
 
-	public void setMill_code(int mill_code) {
+	public void setMill_code(String mill_code) {
 		Mill_code = mill_code;
 	}
 
@@ -269,6 +275,23 @@ public class Contractgeneration {
 	public void setCreated_by(int created_by) {
 		Created_by = created_by;
 	}
+	  
+	
+	public String getCropYear() {
+		return cropYear;
+	}
+
+	public void setCropYear(String cropYear) {
+		this.cropYear = cropYear;
+	}
+	
+	public int getSortingId() {
+		return SortingId;
+	}
+
+	public void setSortingId(int sortingId) {
+		SortingId = sortingId;
+	}
 
 	@Override
 	public String toString() {
@@ -282,8 +305,11 @@ public class Contractgeneration {
 				+ Contract_acceptance_flag + ", Contract_acceptance_date=" + Contract_acceptance_date
 				+ ", Contract_acceptance_doc=" + Contract_acceptance_doc + ", Intial_Payment_date="
 				+ Intial_Payment_date + ", Intial_Payment_flag=" + Intial_Payment_flag + ", Contract_status="
-				+ Contract_status + ", Created_date=" + Created_date + ", Created_by=" + Created_by + "]";
+				+ Contract_status + ", Created_date=" + Created_date + ", cropYear=" + cropYear + ", Created_by="
+				+ Created_by + ", SortingId=" + SortingId + "]";
 	}
+
+	
 
 	
 }

@@ -36,6 +36,9 @@ public class EntryofGradeCompositionModel {
 	@Column(name = "Created_date ")
 	public Date created_date;
 	
+	@Column(name = "Remark " , length = 255)
+	public String remark;
+	
 	@Column(name = "updateDateAndTimeDate ")
 	public Date updateDateAndTimeDate;
 	
@@ -120,7 +123,25 @@ public class EntryofGradeCompositionModel {
 	public void setCreated_date(Date created_date) {
 		this.created_date = created_date;
 	}
+	
+	
   
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public Date getUpdateDateAndTimeDate() {
+		return updateDateAndTimeDate;
+	}
+
+	public void setUpdateDateAndTimeDate(Date updateDateAndTimeDate) {
+		this.updateDateAndTimeDate = updateDateAndTimeDate;
+	}
+
 	@Override
 	public String toString() {
 		return "EntryofGradeCompositionModel [id=" + id + ", Jute_combination=" + Jute_combination

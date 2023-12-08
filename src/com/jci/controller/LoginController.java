@@ -1,4 +1,5 @@
 package com.jci.controller;
+import java.time.LocalDate;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -73,6 +74,23 @@ public class LoginController {
                    
                      else
                          {
+                    	
+							LocalDate obj = LocalDate.now();
+							//LocalDate obj = LocalDate.of(2020, 1, 8)
+
+							int currentyear = obj.getYear();
+							int nextyear = 0;
+							int month = obj.getMonthValue();
+
+							if (month >= 7) {
+								nextyear = currentyear + 1;
+							} else {
+								nextyear = currentyear;
+								currentyear -= 1;
+							}
+						
+							String currCropYear = currentyear + "-" + nextyear;
+							
 
                                 int refId = userRegService.getRefId(email);
                                 int roleId = userRegService.getUserRoleId(refId);
@@ -87,12 +105,20 @@ public class LoginController {
                                 String regionId = userRegService.getregionId(email);
                                 String zoneId = userRegService.getzoneId(email);
                                 System.out.println("dpc_center =====   "+dpc_center);
+                                
+                                
+//                                EncodeId encodeId = new EncodeId();
+//    							SecretKey secretKey = encodeId.generateAESKey(128);
+//    							
+    							//session.setAttribute("SecretKey", secretKey);
+                                
                                 session.setAttribute("regionId", regionId);
                                 session.setAttribute("zoneId", zoneId);
                                 session.setAttribute("roletype", roletype);
                                 session.setAttribute("is_ho", is_ho);
                                 session.setAttribute("userId", refId);
                                 session.setAttribute("usrname", email);
+                                session.setAttribute("currCropYear", currCropYear);
                                 session.setAttribute("dpcId", dpcIdd);
                                 session.setAttribute("region", region);
                                 session.setAttribute("zone", dpcId);

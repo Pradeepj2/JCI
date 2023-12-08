@@ -28,6 +28,21 @@ public class PCSOReqLetterServiceImpl implements PCSOReqLetterService{
 		genReqLetterDao.delete(id);
 	}
 
+	@Override
+	public List<PCSORequestLetter> getTopThreeRecords(String cropString) {
+	return genReqLetterDao.getTopThreeRecords(cropString);
+	}
+
+	@Override
+	public void setEmailStatus(int id, int status) {
+		 genReqLetterDao.setEmailStatus(id , status);
+	}
+
+	@Override
+	public double getTotalContractedQty(String cropYear) {
+		return genReqLetterDao.getTotalContractedQty(cropYear);
+	}
+
 	
 	
 

@@ -11,6 +11,9 @@ public interface PCSOReqLetterDao {
 	public List<PCSORequestLetter> getAllRequestLetters();
 	public PCSORequestLetter getAllRequestLetter(int reqId);
 	public void delete(int reqId);
+	public List<PCSORequestLetter> getTopThreeRecords(String cropString);
+	public void setEmailStatus(int id, int status);
+	public double getTotalContractedQty(String cropYear); 
 	
 	
 	

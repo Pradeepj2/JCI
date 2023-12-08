@@ -27,4 +27,10 @@ public interface PcsoentryService {
 	Object loadAllDetailsOfLetter(String refNo);
 
 	List<String> getAllLables();
+
+	List<String> getUniqueRefNos();
+
+	List<EntryofpcsoModel> getAllMillDetailsOfRefNo(String refNo);
+
+	int getCountOfTotalEntries();
 }

@@ -28,13 +28,13 @@ public class ContractGenerationServiceImpl2 implements ContractGenerationService
 	}
 
 	@Override
-	public ModelAndView pcso_details(List<String> pcso,String gradeComp, String deliveryType) {
-		return this.contractGenerationDao2.pcso_details(pcso,gradeComp,deliveryType);
+	public ModelAndView pcso_details(List<String> pcso,String gradeComp) {
+		return this.contractGenerationDao2.pcso_details(pcso,gradeComp);
 	}
 
 	@Override
-	public List<Object[]> getListOfGradesPrice(String deliveryType, String cropYear) {
-		return contractGenerationDao2.getListOfGradesPrice(deliveryType, cropYear);
+	public List<Object[]> getListOfGradesPrice(String cropYear) {
+		return contractGenerationDao2.getListOfGradesPrice(cropYear);
 	}
 
 	@Override
@@ -45,6 +45,16 @@ public class ContractGenerationServiceImpl2 implements ContractGenerationService
 	@Override
 	public List<Contractgeneration> getAllContract() {
 	return contractGenerationDao2.getAllContract();
+	}
+
+	@Override
+	public int updateContractedValue(String deliveryType ,String totalQtyOfMill) {
+		return contractGenerationDao2.updateContractedValue(deliveryType,totalQtyOfMill);
+	}
+
+	@Override
+	public List<Contractgeneration> getContractFullDetails(String contractidn) {
+		return contractGenerationDao2.getContractFullDetails(contractidn);
 	}
 
  
