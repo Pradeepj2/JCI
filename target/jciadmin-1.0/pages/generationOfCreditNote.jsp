@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<%@page import="com.jci.service_phase2.CreditNoteGenerationService"%>
+<%@page import="org.springframework.beans.factory.annotation.Autowired"%>
 <%@page import="org.apache.commons.lang3.ObjectUtils.Null"%>
 <%@page import="java.time.LocalDate"%>
 <%@page import="com.jci.model.StateList"%>
@@ -86,6 +88,31 @@ input[type="radio"] {
 
 <body class="fixed-navbar">
 
+	<%
+	
+	
+	
+	String shipmentDetails = (String) request.getSession().getAttribute("shipmentDetails");
+	String roId = (String) request.getSession().getAttribute("roId");
+	int Count = (int) request.getSession().getAttribute("Count") + 1;
+	Double nominalWt = (Double) request.getSession().getAttribute("nominalWeight");
+	Double actualWt = (Double) request.getSession().getAttribute("ActualWeight");
+	Double invoiceVal = Double.parseDouble((String)request.getSession().getAttribute("invoiceVal"));
+	Double shortQty = nominalWt-actualWt;
+	
+	Double price = invoiceVal/nominalWt ;
+	int crnAmount =  (int)(price * shortQty);
+	
+	String currCropYear = (String) request.getSession().getAttribute("currCropYear");
+	//generation of credit Note No.
+	String lastDigitOfCropYear = currCropYear.substring(currCropYear.length()-2);
+	String indiaSerialNo = "001640";
+	String creditNoteIdnNo = "C"+lastDigitOfCropYear+indiaSerialNo+roId+"00"+Count;
+	
+	
+	
+	%>
+
 	<div class="page-wrapper">
 
 		<!-- START HEADER-->
@@ -108,24 +135,27 @@ input[type="radio"] {
 								<span>${msg}</span>
 							</div>
 							<div class="ibox-body">
-								<form action="saveRoDi.obj" method="POST">
+								<form action="saveCreditNote.obj" method="POST" enctype="multipart/form-data">
 									<div class="row">
 
 										<div class="col-sm-4 form-group">
 											<label>Credit Note Date</label> <input name="cnDate"
-												id="cnDate" class="form-control" readonly />
+												id="cnDate" class="form-control" placeholder="dd-mm-yyyy" 
+												value="<%=new java.text.SimpleDateFormat("dd-MM-yyyy").format(new java.util.Date())%>"
+												readonly />
 										</div>
 
 
 										<div class="col-sm-4 form-group">
 											<label>Credit Note No </label> <input class="form-control"
-												name="cnNo" id="cnNo" type="text" value="C1122233030333"
+												name="cnNo" id="cnNo" type="text" value="<%=creditNoteIdnNo %>"
 												readonly>
 										</div>
 
 										<div class="col-sm-4 form-group">
 											<label>Shipment Details</label> <input class="form-control "
-												name="shipment" id="shipment" type="text" value="" readonly>
+												name="shipment" id="shipment" type="text"
+												value="<%=shipmentDetails%>" readonly>
 										</div>
 									</div>
 
@@ -133,16 +163,18 @@ input[type="radio"] {
 
 										<div class="col-sm-4 form-group">
 											<label>BOS Qty.</label> <input class="form-control"
-												name="bosQty" id="bosQty" type="text" value="" readonly>
+												name="bosQty" id="bosQty" type="text"
+												value="<%=nominalWt%>" readonly>
 										</div>
 
 										<div class="col-sm-4 form-group">
 											<label>Actual Qty. </label> <input class="form-control"
-												id="actualQty" name="actualQty" type="text" readonly>
+												id="actualQty" name="actualQty" value="<%=actualWt%>"
+												readonly>
 										</div>
 										<div class="col-sm-4 form-group" id="dpc">
 											<label>Short Qty.</label> <input class="form-control"
-												name="shortQty" id="shortQty" type="text" readonly>
+												name="shortQty" id="shortQty" value="<%=shortQty %>" type="text" readonly>
 										</div>
 									</div>
 
@@ -152,8 +184,15 @@ input[type="radio"] {
 										<div class="col-sm-4 form-group" id="dpc">
 											<label>Credit Note Amount </label> <input
 												class="form-control" name="creditAmt" id="creditAmt"
-												type="text" readonly>
+												type="text" value="<%=crnAmount %>" readonly>
 										</div>
+										<div class="col-sm-4 form-group" for="formFile">
+											<label>File Upload </label> <input
+												class="form-control" name="file" id="formFile"
+												type="file">
+										</div>
+										
+										
 
 									</div>
 									<br>
@@ -186,6 +225,8 @@ input[type="radio"] {
 		charset="utf-8"></script>
 	<script src="assets/css/docsupport/init.js" type="text/javascript"
 		charset="utf-8"></script>
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
 
 </body>
 </html>

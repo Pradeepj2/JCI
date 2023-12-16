@@ -151,38 +151,6 @@ public class DistrictdaoImpl implements DistrictDao {
 		return result;
 	}
 
-//	@Override
-//	public List<String> getSpecificDistricts(String state_code, String crop_year, String delivery_type) {
-//		List<String> result = new ArrayList<>();
-//		System.out.println(state_code + " " + crop_year + " " + delivery_type + " ");
-//		String sqlForExistingDistrictsInDatabase = "select DISTINCT  district_id from jcientry_derivative_price where crop_year ='"
-//				+ crop_year + "' AND state ='" + state_code + "' AND delivery_type ='" + delivery_type
-//				+ "'";
-//		System.out.println(sqlForExistingDistrictsInDatabase + "this is the query for the result");
-//		
-//		Query firstQuery = this.sessionFactory.getCurrentSession().createSQLQuery(sqlForExistingDistrictsInDatabase);
-//		String listOfIds = (String) firstQuery.uniqueResult();
-//		System.out.println("ListOfIds" + listOfIds + " ");
-//		String hql;
-//		if (listOfIds != null) {
-//			hql = "select id, dist_name from tbl_districts_new where state_code ='" + state_code + "' AND id not in ("
-//					+ listOfIds + ")";
-//		} else {
-//			hql = "select id, dist_name from tbl_districts_new where state_code ='" + state_code + "'";
-//		}
-//		
-//		System.out.println(hql + " HQL ");
-//		
-//		Query query = this.sessionFactory.getCurrentSession().createSQLQuery(hql);
-//		List<Object[]> rows = query.list();
-//		for (Object[] row : rows) {
-//			result.add(row[0].toString() + "-" + row[1].toString());
-//			// System.out.println("state value from DaoImpl is " + result);
-//			
-//		}
-//		
-//		return result;
-//	}
 
 	@Override
 	public List<String> getDistrictCodeByDistrictIds(String ids) {

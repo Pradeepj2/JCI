@@ -81,6 +81,7 @@ C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\JBAService.ja
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\Impl\VerifyFarmerServiveImpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\RopeMakingService.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\Impl\ProgOfAssortmentServiceImpl.java
+C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service_phase2\CreditNoteGenerationService.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\Impl\ContractgenerationcommercialServiceImpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\model\.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\VerifyFarmerService.java
@@ -103,6 +104,7 @@ C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\impl\JBADaoImpl.j
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\impl\EntryDerivativePriceDaoImpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\model\PCSORequestLetter.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\impl\UserPriviligeDaoImpl.java
+C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao_phase2\CreditNoteGenerationDao.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\PCSODao.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\Impl\VerifyTallySlipServiceImpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\model\EntryofpcsoModel.java
@@ -260,7 +262,9 @@ C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\model\PaymentInstrume
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\impl_phase2\EntryDerivativePriceDaoImpl2.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\Impl\ContractgenerationServiceImpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\Impl\RawJuteProcurementAndPaymentServiceImpl.java
+C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\Impl_phase2\CreditNoteGenerationServiceImpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\impl\RopeMakingDaoImpl.java
+C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\impl_phase2\CreditNoteGenerationDaoImpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\dao\impl\RoDetailsDaoimpl.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\model\DistributionoftallyslipModel.java
 C:\Users\pradeep.rathor\Desktop\Backup\JCI-CMS\src\com\jci\service\AddOrganisationService.java

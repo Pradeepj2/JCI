@@ -232,6 +232,7 @@ body {
 							class="sidebar-item-icon fa fa-th-large"></i><b>BIN Gain List</b></a></li>
 
 				</ul></li>
+				
 			<li><a href="javascript:void(0);"><i
 					class="sidebar-item-icon fa fa-th-large"></i> <span
 					class="nav-label">6.&nbsp;Contract</span> <i
@@ -276,6 +277,8 @@ body {
 								Combination</b></a></li>
 
 				</ul></li>
+				
+				
 			<li><a href="javascript:void(0);"><i
 					class="sidebar-item-icon fa fa-th-large"></i> <span
 					class="nav-label">7.&nbsp;Payment Arrangement</span> <i
@@ -291,8 +294,16 @@ body {
 							class="sidebar-item-icon fa fa-th-large"></i><b>Ro Dispatch List</b></a></li>
 							
 				<li data-pre="" id=""><a
-						href="generationOfCreditNote.obj"><i
+						href="generationOfCreditNoteList.obj"><i
 							class="sidebar-item-icon fa fa-th-large"></i><b>Generation of Credit Notes</b></a></li>
+							
+				<li data-pre="" id=""><a
+						href="creditNoteList.obj"><i
+							class="sidebar-item-icon fa fa-th-large"></i><b>All Credit Notes </b></a></li>
+							
+				<li data-pre="" id=""><a
+						href="settlementcndn.obj"><i
+							class="sidebar-item-icon fa fa-th-large"></i><b> Settlement Of Credit And Debit Notes</b></a></li>
 
 					<li data-pre="41" id="o41"><a href="entryofpayment.obj"><i
 							class="sidebar-item-icon fa fa-th-large"></i><b>Entry of

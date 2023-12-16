@@ -21,6 +21,11 @@
     <link href="assets/css/main.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+  
+  
+<script type="text/javascript" src="assets/js/CommanInputValidation.js">
+
+
     <!-- PAGE LEVEL STYLES-->
 </head>
 
@@ -171,12 +176,14 @@ $(document).ready(function () {
                                       <div class="row">
                                        <div class="col-sm-4 form-group" >
 											<label><b>Northern Base Price</b></label></br>
-											<label>Basis Price +</label><input  type="tel" maxlength="10" name="northernprice"  id ="northernprice" required="required" minlength="0"/></br> 
+											<label>Basis Price +</label><input class="stringValidation"  type="tel" maxlength="10" name="northernprice"  id ="northernprice" required="required" minlength="0"/></br> 
+<!-- 											<label>Basis Price +</label><input class="StringValid" oninput="stringValidation(this.value)" type="tel" maxlength="10" name="northernprice"  id ="northernprice" required="required" minlength="0"/></br>  -->
+<!-- 											<label>Basis Price +</label><input  type="tel" maxlength="10" name="northernprice"  id ="northernprice" required="required" minlength="0"/></br>  -->
 										</div>
 										
 										<div class="col-sm-4 form-group" >
 											<label><b>Semi-Northern Base Price</b></label></br>
-											<label>Basis Price +</label><input  type="tel" maxlength="10" name="seminorthernprice"  id ="seminorthernprice" required="required" minlength="0"  /></br> 
+											<label>Basis Price +</label><input class="numberValidation" type="tel" maxlength="10" name="seminorthernprice"  id ="seminorthernprice" required="required" minlength="0"  /></br> 
 										</div>
 										
 										<div class="col-sm-4 form-group" >

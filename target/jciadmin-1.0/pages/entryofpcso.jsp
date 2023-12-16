@@ -240,9 +240,8 @@
 	<script>
 	 
 	  $("#referencedate").on("change" , function(){
-	
 		 var currDate = $(this).val().split("-");
-		 var minDateValue = new Date(currDate[2], currDate[1], currDate[0]);
+		 var minDateValue = new Date(currDate[2], currDate[1]-1, currDate[0]);
 		 $("#deliveryPeriod").datepicker('option', 'minDate', minDateValue);
 	  })
 	

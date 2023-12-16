@@ -127,7 +127,7 @@ public class LoginController {
                                 session.setAttribute("rolename", rolename);
                                 session.setAttribute("dpc_center", dpc_center);
                                 
-                                  mv= new ModelAndView( (View)new RedirectView("dashboardview.obj")); 
+                                mv= new ModelAndView( (View)new RedirectView("dashboardview.obj")); 
                                  
                          }
                          

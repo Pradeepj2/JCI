@@ -32,11 +32,14 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.impl.bootstrap.HttpServer;
+import org.apache.log4j.lf5.viewer.categoryexplorer.TreeModelAdapter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -45,13 +48,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
@@ -59,6 +65,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import com.google.gson.Gson;
 
 import com.jci.model.Contractgeneration;
+import com.jci.model.CreditNotes;
 import com.jci.model.EntryDerivativePrice;
 import com.jci.model.EntryofGradeCompositionModel;
 import com.jci.model.EntryofpcsoModel;
@@ -66,9 +73,10 @@ import com.jci.model.PCSORequestLetter;
 
 import com.jci.model.RoDispatchModel;
 import com.jci.model.StateList;
-
+import com.jci.model.settlemetCnDnModel;
 import com.jci.service.DistrictService;
 import com.jci.service_phase2.ContractGenerationService2;
+import com.jci.service_phase2.CreditNoteGenerationService;
 import com.jci.service_phase2.EntryDerivativePriceService2;
 import com.jci.service_phase2.EntryofGradeCompositionService;
 import com.jci.service_phase2.PCSOReqLetterService;
@@ -103,6 +111,9 @@ public class Controller_V {
 
 	@Autowired
 	DistrictService districtService;
+
+	@Autowired
+	CreditNoteGenerationService creditNoteGenerationService;
 
 //	@Autowired
 //	DistrictService districtService;
@@ -547,7 +558,7 @@ public class Controller_V {
 		String joinDate = String.join(",", pcsoDate);
 
 		String contractIdn = (String) requestBody.get("contractIdn");
-		int SortingId = Integer.parseInt((String) requestBody.get("SortingId") );
+		int SortingId = Integer.parseInt((String) requestBody.get("SortingId"));
 		String contractQty = (String) requestBody.get("contractQty");
 		String contractdate = (String) requestBody.get("contractdate");
 		String gradeComp = (String) requestBody.get("gradeComp");
@@ -587,21 +598,21 @@ public class Controller_V {
 			PdfGenerator pdfGenerator = new PdfGenerator();
 			List<Object[]> GradePriceList = contractGenerationService2.getListOfGradesPrice(cropYear);
 			List<Object[]> GradeCompList = contractGenerationService2.getListOfGradeComposition(gradeComp);
-			
-		    String filePath = "C:\\Users\\pradeep.rathor\\Desktop\\JCIStuff\\Contracts\\"+contractIdn;
-			
-			//System.err.println(filePath);
 
-		    File parentDir = new File(filePath);
+			String filePath = "C:\\Users\\pradeep.rathor\\Desktop\\JCIStuff\\Contracts\\" + contractIdn;
+
+			// System.err.println(filePath);
+
+			File parentDir = new File(filePath);
 			if (!parentDir.exists()) {
 				parentDir.mkdirs();
 			}
-			
-			filePath +=  "\\"+contractIdn +"Contract" + millCode + ".pdf";
-			
-			//System.err.println(filePath);
+
+			filePath += "\\" + contractIdn + "Contract" + millCode + ".pdf";
+
+			// System.err.println(filePath);
 			pdfGenerator.generatePdf(finalGeneratedContractNo, millNameString, millCode, millQty, cropYear,
-					GradePriceList, GradeCompList, fileName, deliveryType, contractdate,filePath);
+					GradePriceList, GradeCompList, fileName, deliveryType, contractdate, filePath);
 
 			// send email
 			String body = "Please find below attachment to get full details of contract grade wise..";
@@ -617,104 +628,13 @@ public class Controller_V {
 					e.printStackTrace();
 				}
 			});
-			
+
 			contractGenerationService2.create(contractgeneration);
 		}
 
 		return "Saved";
 	}
 
-	/*
-	 * @ResponseBody
-	 * 
-	 * @RequestMapping(value = "contractgenerationPcsoWiseSave", method = {
-	 * RequestMethod.POST }) public String
-	 * saveContractGenerationPcsoWise(HttpServletRequest request,
-	 * 
-	 * @RequestBody Map<String, Object> requestBody) throws IOException,
-	 * ParseException, DocumentException, AddressException {
-	 * 
-	 * String cropYear = (String) request.getSession().getAttribute("currCropYear");
-	 * ModelAndView mv = new ModelAndView("contractgeneration");
-	 * 
-	 * List<Map<String, String>> millDetails = (List<Map<String, String>>)
-	 * requestBody.get("millDetails");
-	 * 
-	 * List<String> pcsoDate = (List<String>) requestBody.get("pcsoDate"); int refId
-	 * = (Integer) request.getSession().getAttribute("userId");
-	 * 
-	 * String joinDate = String.join(",", pcsoDate);
-	 * 
-	 * String contractIdn = (String) requestBody.get("contractIdn"); String
-	 * contractQty = (String) requestBody.get("contractQty"); String contractdate =
-	 * (String) requestBody.get("contractdate"); String gradeComp = (String)
-	 * requestBody.get("gradeComp");
-	 * 
-	 * for (Map<String, String> millDetail : millDetails) { Contractgeneration
-	 * contractgeneration = new Contractgeneration();
-	 * 
-	 * String millCode = millDetail.get("millCode"); String millNameString =
-	 * millDetail.get("millName"); Double millQty =
-	 * Double.parseDouble(millDetail.get("Qty")); String deliveryType =
-	 * millDetail.get("delivery_type"); String finalGeneratedContractNo = "JCI/" +
-	 * millCode + "/" + cropYear + "/" + contractIdn;
-	 * 
-	 * contractgeneration.setPcso_date(joinDate);
-	 * contractgeneration.setContract_identification_no(contractIdn);
-	 * contractgeneration.setContract_qty(contractQty);
-	 * contractgeneration.setContract_date(contractdate);
-	 * contractgeneration.setDelivery_type(deliveryType);
-	 * contractgeneration.setContract_no(finalGeneratedContractNo);
-	 * contractgeneration.setContract_value(Double.parseDouble(millDetail.get(
-	 * "contractedValue"))); contractgeneration.setCreated_date(new Date());
-	 * contractgeneration.setCreated_by(refId);
-	 * contractgeneration.setGrade_composition(gradeComp);
-	 * contractgeneration.setMill_code(millCode);
-	 * contractgeneration.setCropYear(cropYear);
-	 * contractgeneration.setMill_name(millNameString);
-	 * contractgeneration.setMill_qty(millQty); String fileName = contractIdn +
-	 * "Contract" + millCode + ".pdf";
-	 * contractgeneration.setContract_acceptance_doc(fileName);
-	 * 
-	 * DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-	 * LocalDate currentDate = LocalDate.now(); LocalDate tenDaysAfter =
-	 * currentDate.plusDays(10); // Add 10 days
-	 * contractgeneration.setPayment_duedate(tenDaysAfter.format(formatter));
-	 * 
-	 * PdfGenerator pdfGenerator = new PdfGenerator(); List<Object[]> GradePriceList
-	 * = contractGenerationService2.getListOfGradesPrice(cropYear); List<Object[]>
-	 * GradeCompList =
-	 * contractGenerationService2.getListOfGradeComposition(gradeComp);
-	 * 
-	 * // pdf generate pdfGenerator.generatePdf(finalGeneratedContractNo,
-	 * millNameString, millCode, millQty, cropYear, GradePriceList, GradeCompList,
-	 * fileName, deliveryType, contractdate);
-	 * 
-	 * String filePath =
-	 * "C:\\Users\\pradeep.rathor\\Desktop\\Backup\\JCI-CMS\\target\\" + contractIdn + "
-	 * \\" + contractIdn + "Contract" + millCode + ".pdf";
-	 * 
-	 * System.err.println(filePath);
-	 * 
-	 * // send email String body =
-	 * "Please find below attachment to get full details of contract grade wise..";
-	 * String sub = "Contract Details"; SendMail sendMail = new SendMail();
-	 * InternetAddress[] toAddresses = { new
-	 * InternetAddress("pradeep.rathor@cyfuture.com") };
-	 * 
-	 * CompletableFuture.runAsync(() -> { try { sendMail.sendEmail(toAddresses,
-	 * body, sub, filePath, fileName); } catch (Exception e) { e.printStackTrace();
-	 * } });
-	 * 
-	 * 
-	 * System.out.println(); System.out.println();
-	 * System.out.println(contractgeneration.toString()); System.out.println();
-	 * System.out.println(); contractGenerationService2.create(contractgeneration);
-	 * }
-	 * 
-	 * // return new ModelAndView(new RedirectView("viewcontractgeneration.obj"));
-	 * System.err.println("qwerthjhgfdsdfgh"); return "Saved"; }
-	 */
 	@RequestMapping("viewcontractgeneration")
 	public ModelAndView viewContractGenerationList(HttpServletRequest request) {
 		ModelAndView mv = new ModelAndView("ContractGenerationList");
@@ -784,10 +704,6 @@ public class Controller_V {
 
 		return updatedVal + "";
 	}
-
-	//////////////////////////////////////////////////////////////////
-	// Divyam code ends
-	//////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////
 	// Pradeep code Starts
@@ -1298,7 +1214,7 @@ public class Controller_V {
 	// Generation Of Credit Notes
 	// ---------------------------------------------------------
 
-	@RequestMapping("generationOfCreditNote")
+	@RequestMapping("generationOfCreditNoteList")
 	public ModelAndView generationOfCreditNotes(HttpServletRequest request) {
 
 		String username = (String) request.getSession().getAttribute("usrname");
@@ -1306,8 +1222,199 @@ public class Controller_V {
 			return new ModelAndView("index");
 		}
 
-		return new ModelAndView("generationOfCreditNote");
+		List<Object[]> list = creditNoteGenerationService.getAllVerifiedWeighment();
 
+		ModelAndView mView = new ModelAndView("generationOfCreditNotelist");
+
+		mView.addObject("list", list);
+
+		return mView;
+
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "generateCrn" }, method = { RequestMethod.POST })
+	public void generateCrn(final HttpServletRequest request, RedirectAttributes redirectAttributes,
+			HttpSession session) {
+		final String shipmentDetails = request.getParameter("shipmentDetails");
+		final Double nominalWt = Double.parseDouble(request.getParameter("nominalWeight"));
+		final Double actualWt = Double.parseDouble(request.getParameter("ActualWeight"));
+		final String roId = request.getParameter("roId");
+		final String invoiceVal = request.getParameter("invoiceValue");
+		final String contractNo = request.getParameter("contractNo");
+
+		int Count = creditNoteGenerationService.getCountOfRo(roId);
+
+		session.setAttribute("shipmentDetails", shipmentDetails);
+		session.setAttribute("ContractNo", contractNo);
+		session.setAttribute("nominalWeight", nominalWt);
+		session.setAttribute("ActualWeight", actualWt);
+		session.setAttribute("roId", roId);
+		session.setAttribute("Count", Count);
+		session.setAttribute("invoiceVal", invoiceVal);
+
+	}
+
+	@RequestMapping("creditNoteForm")
+	public ModelAndView creditNoteForm() {
+		ModelAndView mView = new ModelAndView("generationOfCreditNote");
+		return mView;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "saveCreditNote" }, method = { RequestMethod.POST })
+	public ModelAndView saveCreditNoteDetails(final HttpServletRequest request,
+			@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+
+		String username = (String) request.getSession().getAttribute("usrname");
+		if (username == null) {
+			return new ModelAndView("index");
+		}
+
+		final String shipmentDetails = request.getParameter("shipment");
+		final String crnDate = request.getParameter("cnDate");
+		final String crnNo = request.getParameter("cnNo");
+		final String contractNo = request.getParameter("contractNo");
+
+		final Double shortQty = Double.parseDouble(request.getParameter("shortQty"));
+		final Double nominalWt = Double.parseDouble(request.getParameter("bosQty"));
+		final Double actualWt = Double.parseDouble(request.getParameter("actualQty"));
+		final Double crnAmount = Double.parseDouble(request.getParameter("creditAmt"));
+		String roId = (String) request.getSession().getAttribute("roId");
+		int refId = (int) request.getSession().getAttribute("userId");
+
+		CreditNotes creditNotes = new CreditNotes();
+
+		creditNotes.setActualQty(actualWt);
+		creditNotes.setBosQty(nominalWt);
+		creditNotes.setCreated_by(refId + "");
+		creditNotes.setCreationDate(new Date());
+		creditNotes.setCrnAmount(crnAmount);
+		creditNotes.setContractNo(contractNo);
+		creditNotes.setCrnNo(crnNo);
+		creditNotes.setCrnDate(crnDate);
+		creditNotes.setShipmentDetails(shipmentDetails);
+		creditNotes.setRoId(roId);
+		creditNotes.setShortQty(shortQty);
+
+		if (file == null || file.isEmpty()) {
+			creditNotes.setDocument("");
+		} else {
+			final String originalFileName = file.getOriginalFilename();
+			String dirString = "C:\\Users\\pradeep.rathor\\Desktop\\JCIStuff\\CreditNotes";
+
+			File fileStoreAt = new File(dirString);
+
+			if (!fileStoreAt.exists()) {
+				fileStoreAt.mkdir();
+			}
+
+			File tranferFile = new File(dirString, originalFileName);
+			file.transferTo(tranferFile);
+			creditNotes.setDocument(originalFileName);
+		}
+
+		creditNoteGenerationService.create(creditNotes);
+
+		return new ModelAndView(new RedirectView("creditNoteList.obj"));
+
+	}
+
+	@RequestMapping("changeCrnStatus")
+	public ModelAndView changeCrnStatusTo1(HttpServletRequest request, RedirectView redirectView) {
+
+		int id = Integer.parseInt(request.getParameter("crnId"));
+
+		String username = (String) request.getSession().getAttribute("usrname");
+		if (username == null) {
+			return new ModelAndView("index");
+		}
+
+		creditNoteGenerationService.chageStatusTo1(id);
+
+		return new ModelAndView(new RedirectView("creditNoteList.obj"));
+	}
+
+	@RequestMapping("creditNoteList")
+	public ModelAndView creditNoteList(HttpServletRequest request) {
+		String username = (String) request.getSession().getAttribute("usrname");
+		if (username == null) {
+			return new ModelAndView("index");
+		}
+
+		ModelAndView mView = new ModelAndView("creditNoteList");
+
+		List<CreditNotes> ListingCreditNotes = creditNoteGenerationService.getAllCreditNotes();
+
+		mView.addObject("list", ListingCreditNotes);
+		return mView;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// ---------------------------------------------------------
+	// Settlement Of Credit and Debit notes
+	// ---------------------------------------------------------
+
+	@RequestMapping("settlementcndn")
+	public ModelAndView settlementcndn(HttpServletRequest request) {
+		String username = (String) request.getSession().getAttribute("usrname");
+		if (username == null) {
+			return new ModelAndView("index");
+		}
+
+		List<Object> contractnosList = creditNoteGenerationService.getAllDisContractNoCNDN();
+		ModelAndView mView = new ModelAndView("settlementCnDnPage");
+
+		mView.addObject("contractnosList", contractnosList);
+
+		return mView;
+	}
+
+	@RequestMapping("finalsettlementNoteJsp")
+	public ModelAndView finalsettlementNoteJsp(HttpServletRequest request) {
+		String username = (String) request.getSession().getAttribute("usrname");
+		if (username == null) {
+			return new ModelAndView("index");
+		}
+
+		String contractNoString = request.getParameter("contractNo");
+
+		List<Object[]> creditList = creditNoteGenerationService.findDetails("jcicredit_note", contractNoString);
+		List<Object[]> demandList = creditNoteGenerationService.findDetails("jcidemand_note", contractNoString);
+
+		ModelAndView mView = new ModelAndView("finalSettlementPage");
+
+		mView.addObject("creditList", creditList);
+		mView.addObject("demandList", demandList);
+
+		return mView;
+	}
+
+	@RequestMapping("finalSettlement")
+	public ModelAndView finalSettlement(HttpServletRequest request) {
+		String username = (String) request.getSession().getAttribute("usrname");
+
+		if (username == null) {
+			return new ModelAndView("index");
+		}
+
+		double initiationAmt = Double.parseDouble((String) request.getParameter("initiationAmt"));
+		String initiateDate = request.getParameter("initiateDate");
+		String contractNo = request.getParameter("contractNo");
+		String creditNoteNo = request.getParameter("creditNoteNo");
+		String debitNoteNo = request.getParameter("debitNoteNo");
+
+		Date todaysDate = new Date();
+		settlemetCnDnModel settlemetCnDnModel = new settlemetCnDnModel();
+		settlemetCnDnModel.setContractNo(contractNo);
+		settlemetCnDnModel.setCreditNoteNo(creditNoteNo);
+		settlemetCnDnModel.setDebitNoteNo(debitNoteNo);
+		settlemetCnDnModel.setInitiateDate(todaysDate);
+		settlemetCnDnModel.setInitiationAmt(initiationAmt);
+
+		creditNoteGenerationService.saveSettlementOfCnDn(settlemetCnDnModel);
+		return new ModelAndView(new RedirectView("settlementcndn.obj"));
 	}
 
 	// for specific district values

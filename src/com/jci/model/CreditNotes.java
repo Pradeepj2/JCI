@@ -1,8 +1,8 @@
 package com.jci.model; 
-import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -10,25 +10,31 @@ import javax.persistence.Table;
 
 import org.jetbrains.annotations.NotNull;
 
+@Entity
 @Table(name = "jcicredit_note" , schema = "dbo")
 public class CreditNotes {
 
 	    @Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	    @Column(name = "Crn_id")
-	    private BigInteger crnId; // Big int PK, AI
+	    private int crnId; //  int PK, AI
 
-		@Column(name = "Credit_note_date", length = 50)
+		@Column(name = "Credit_note_date", length = 255)
 		@NotNull
 		private String crnDate;
 
-	    @Column(name = "Credit_note_no",unique = true,length = 50)
+		
+	    @Column(name = "Credit_note_no",length = 255)
 	    @NotNull
 	    private String crnNo; 
 
-	    @Column(name = "Shipment_details",length = 250)
+	    @Column(name = "Shipment_details",length = 255)
 	    @NotNull
 	    private String shipmentDetails; 
+	    
+	    @Column(name = "Contract_no",length = 255)
+	    @NotNull
+	    private String contractNo; 
 	    
 	    @Column(name = "BOS_qty")
 	    @NotNull
@@ -59,12 +65,15 @@ public class CreditNotes {
 	    @Column(name = "Creation_date")
 	    @NotNull
 	    private Date creationDate;
+	    
+	    @Column(name = "document")
+	    private String document;
 
-		public BigInteger getCrnId() {
+		public int getCrnId() {
 			return crnId;
 		}
 
-		public void setCrnId(BigInteger crnId) {
+		public void setCrnId(int crnId) {
 			this.crnId = crnId;
 		}
 
@@ -76,6 +85,7 @@ public class CreditNotes {
 			this.crnDate = crnDate;
 		}
 
+	
 		public String getCrnNo() {
 			return crnNo;
 		}
@@ -155,39 +165,41 @@ public class CreditNotes {
 		public void setCreationDate(Date creationDate) {
 			this.creationDate = creationDate;
 		}
+		
+		
+
+		public String getDocument() {
+			return document;
+		}
+
+		public void setDocument(String document) {
+			this.document = document;
+		}
+		
+		
+
+		public String getContractNo() {
+			return contractNo;
+		}
+
+		public void setContractNo(String contractNo) {
+			this.contractNo = contractNo;
+		}
 
 		@Override
 		public String toString() {
 			return "CreditNotes [crnId=" + crnId + ", crnDate=" + crnDate + ", crnNo=" + crnNo + ", shipmentDetails="
-					+ shipmentDetails + ", bosQty=" + bosQty + ", actualQty=" + actualQty + ", shortQty=" + shortQty
-					+ ", crnAmount=" + crnAmount + ", RoId=" + RoId + ", crnStatus=" + crnStatus + ", Created_by="
-					+ Created_by + ", creationDate=" + creationDate + "]";
-		}
-
-		public CreditNotes(BigInteger crnId, String crnDate, String crnNo, String shipmentDetails, Double bosQty,
-				Double actualQty, Double shortQty, Double crnAmount, String roId, int crnStatus, String created_by,
-				Date creationDate) {
-			super();
-			this.crnId = crnId;
-			this.crnDate = crnDate;
-			this.crnNo = crnNo;
-			this.shipmentDetails = shipmentDetails;
-			this.bosQty = bosQty;
-			this.actualQty = actualQty;
-			this.shortQty = shortQty;
-			this.crnAmount = crnAmount;
-			RoId = roId;
-			this.crnStatus = crnStatus;
-			Created_by = created_by;
-			this.creationDate = creationDate;
+					+ shipmentDetails + ", contractNo=" + contractNo + ", bosQty=" + bosQty + ", actualQty=" + actualQty
+					+ ", shortQty=" + shortQty + ", crnAmount=" + crnAmount + ", RoId=" + RoId + ", crnStatus="
+					+ crnStatus + ", Created_by=" + Created_by + ", creationDate=" + creationDate + ", document="
+					+ document + "]";
 		}
 
 		public CreditNotes() {
 			super();
 			// TODO Auto-generated constructor stub
 		}
-	    
-	    
-	    
 
+
+		
 }
